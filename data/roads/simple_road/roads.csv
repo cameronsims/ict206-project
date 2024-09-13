@@ -1,0 +1,9 @@
+id,name,length,speed,from,to
+1, Maple Avenue,   2.3,50.0,1,2
+2, Oak Street,     1.8,50.0,1,5
+3, Pine Lane,      1.2,40.0,1,4
+4, Cedar Road,     3.4,60.0,2,3
+5, Birch Boulevard,2.9,50.0,2,4
+6, Elm Drive,      2.1,50.0,3,4
+7, Willow Way,     1.5,40.0,3,5
+8, Aspen Circle,   2.7,50.0,4,5

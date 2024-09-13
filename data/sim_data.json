@@ -1,0 +1,8 @@
+{
+    "sim_hours": 24,
+    "sim_minutes": 60,
+
+    "prob_floor": 0.00000,
+    "prob_ceil": 1.00000,
+    "float_difference": 0.00001
+}
