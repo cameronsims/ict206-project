@@ -5,7 +5,10 @@
 #
 
 from enum import Enum
+from functools import cache
+
 import random
+import math
 
 #
 # Connection Class
@@ -18,10 +21,6 @@ class Connection:
     
     # What the connection connects to (MUST BE ROADS)
     connections = set()
-    
-    # This is the speed index (functions as the weight)
-    # 0.01 - 100.00
-    speed = 0.0
     
     # This is the crash index (how likely it is to crash in this intersection)
     # 0.0 - 100.0
@@ -77,7 +76,6 @@ class Connection:
     def __hash__(self):
         return int(self.id)
 
-
 #
 # Road class
 # - Defines a way to get to place, needs to connect to a Connection
@@ -98,6 +96,9 @@ class Road:
     
     # The Connections the road has to Connections
     connections = []
+    
+    # The amount of drivers on this road...
+    drivers = 0
     
     # Constructor
     def __init__(self, id, name, length, speed, connections):
@@ -149,6 +150,7 @@ class Behaviour(Enum):
     TIMID    = 1        # SAFEST   (DEATH)
     SHORTEST = 2        # SHORTEST (LENGTH)
 
+# Used because Enums suck in python.
 BEHAVIOUR_ARR = ['RECKLESS', 'TIMID', 'SHORTEST']
 BEHAVIOUR_N = len(BEHAVIOUR_ARR)
 
@@ -163,11 +165,17 @@ class Driver:
     # Current (Connection)
     current = -1
     
+    # Current Road (Road)
+    on_road = None
+    
     # The path of nodes
     path = []
     
     # This is a boolean which marks the driver for deletion
     died = False
+    
+    # This is the behaviour 
+    behaviour = None
     
     # Progress, this is a % of how much of the current node we've completed
     progress = 0.0
@@ -182,7 +190,9 @@ class Driver:
         behaviour_index =  random.randint(0, BEHAVIOUR_N - 1)
         behaviour_value = BEHAVIOUR_ARR[behaviour_index]
         self.behaviour = Behaviour[behaviour_value]
-        
+
+
+
 # Find Quickest Path (QUICKEST NEVER CHANGES)
 def driver_heuristicQuickest(cur_node, road, next_node): 
     # Generate the heuristic of the road
@@ -210,6 +220,8 @@ def driver_heuristic(driver):
         return driver_heuristicShortest
     else:
         return None
+
+
 
 
 # This function gets the node relating to an id
@@ -268,7 +280,6 @@ def get_neighbours(roads, connections, node):
                 neighbour.append(con_id)
     # Return the array 
     return neighbour
-
 
 # This calculates the longest from each other
 def get_distances(roads, cons, current, destination):
@@ -342,25 +353,27 @@ def check_path(current, visited, destination):
 # This finds the path based on certain type of path finding
 # This is A*
 def find_path(roads, cons, current, destination, heuristic):
-    
     # Check if this current node is the ID...
     if current.id == destination.id:
         # If it is, return the path
         #print("Found ID: " + str(destination))
         return [ current.id ]
     
-    # We will then execute A* 
-        
-    # Here is where A* Begins 
+    # We will then execute A*, here is where A* Begins 
     
     # This is how we construct our path 
     path = dict()
     
     # Dikstra's Algorithm, this is a dictionary of all distances
-    dist = { node: float("inf") for node in cons } # Distance (g)
-    dist[current.id] = 0
+    dist = dict() # Distance (g)
+    cost = dict() # Cost     (f)
     
-    cost = { node: float("inf") for node in cons } # Cost (f)
+    # Set to infinity
+    for node_id in cons:
+        dist[node_id] = float("inf")
+        cost[node_id] = float("inf")
+    
+    dist[current.id] = 0
     
     # Start with our first node opened
     opened = [ current.id ] # Queue
@@ -376,15 +389,14 @@ def find_path(roads, cons, current, destination, heuristic):
                 location_id = node_id
             # If the item's f value is smaller than current 
             elif cost[node_id] < cost[location_id]:
-                location_id = location_id
+                location_id = node_id
         return location_id
     
     def get_path(location_id):
         # We must start at the node that the driver starts at....
         ret_path = [ ]
         
-        # (ID -> Next_ID)s
-        
+        # (ID -> Next_ID)s        
         # Then we must use the dictonary to extract values, while we still have our origin in.
         # Since we added to the beginning all our path should be extracted.
         next_id = location_id
@@ -396,7 +408,10 @@ def find_path(roads, cons, current, destination, heuristic):
             next_id = path[next_id]
         # Add our start. 
         ret_path.append(next_id)
-        return ret_path[::-1] # Reverse
+        
+        # Reverse our path...
+        ret_path = ret_path[::-1]
+        return ret_path
     
     # While we have things in our array
     while len(opened) > 0:
@@ -447,7 +462,16 @@ def find_path(roads, cons, current, destination, heuristic):
     # If we somehow get here...
     # We did not find a connection in the path...
     # It cannot be in this connection, as we have tried every possible combination
-    return [-1]
+    return [ -1 ]
+
+# These are optimal paths...
+# These are dictionaries so that we access it like this...
+# opt[start][end] -> path
+optimal_distance = dict()
+optimal_speed = dict()
+
+# This is dropped and re-generated every hour 
+optimal_saftey = dict()
 
 #
 # find_destination(roads, location, destination)
@@ -466,5 +490,120 @@ def find_destination(driver, roads, cons, location, destination):
     # Now try to find a connection between the two...
     # We're going to use a path finding algorithm of least resistance
     
-    # This refers to the node iDs that have been visited
-    return find_path(roads, cons, loc_node, dest_node, driver_heuristic(driver))
+    # Before we do anything... 
+    # Ensure that the driver doesn't need to update the path checking...
+    if driver.behaviour == Behaviour.RECKLESS:
+        return optimal_speed[location][destination]
+    # Also check if it is shortest 
+    elif driver.behaviour == Behaviour.SHORTEST:
+        return optimal_distance[location][destination]
+    
+    # This refers to the node IDs that have been visited
+    if location in optimal_saftey:
+        if destination not in optimal_saftey[location]:
+            path = find_path(roads, cons, loc_node, dest_node, driver_heuristic(driver))
+            optimal_saftey[location][destination] = path
+            optimal_saftey[destination][location] = path
+            
+    else:
+        path = find_path(roads, cons, loc_node, dest_node, driver_heuristic(driver))
+        optimal_saftey[location][destination] = path
+        optimal_saftey[destination][location] = path
+    
+    return optimal_saftey[location][destination]
+
+# We will generate our optimal paths for static variables (distance and speed)
+def find_optimal_paths(roads, cons):
+    # Before we do anything, set absolutely everything to None, unless it is itself.
+    for loc_id in cons:
+        optimal_distance[loc_id] = dict()
+        optimal_speed   [loc_id] = dict()
+        optimal_saftey  [loc_id] = dict()
+        
+        # Set self to self to be -1
+        optimal_distance[loc_id][loc_id] = [ -1 ]
+        optimal_speed   [loc_id][loc_id] = [ -1 ]
+        
+        for dest_id in cons:
+            optimal_distance[loc_id][dest_id] = None
+            optimal_speed   [loc_id][dest_id] = None
+    
+    
+    # For every single connection...
+    for loc_id in cons:    
+        # The location ID 
+        loc = get_connection(cons, loc_id)
+        
+        # For every single destination 
+        for dest_id in cons:
+            # Destination ID 
+            dest = get_connection(cons, dest_id)
+            # If we are not at the same node 
+            if optimal_distance[loc_id][dest_id] == None and optimal_speed[loc_id][dest_id] == None:
+                # Get fastest by speed
+                path_short = find_path(roads, cons, loc, dest, driver_heuristicShortest)
+                
+                # Get fastest by distance 
+                path_speed = find_path(roads, cons, loc, dest, driver_heuristicQuickest)
+                
+                # Find for both heuristics...
+                optimal_distance[loc_id][dest_id] = path_short
+                optimal_speed   [loc_id][dest_id] = path_speed
+                
+                optimal_distance[dest_id][loc_id] = path_short
+                optimal_speed   [dest_id][loc_id] = path_speed
+
+
+
+
+
+# This calculates how the driver crash calculation works 
+def calculate_survival(driver, road, cons, prob_floor, prob_ceil, prob_difference):
+    # Get the road...
+    road = driver.on_road
+    
+    # Get other node
+    start_node = cons[ driver.current ]
+    end_node = None 
+    for con_id in road.connections:
+        if con_id != start_node.id:
+            # Set this, break loop
+            end_node = cons[con_id]
+            break
+    
+    # We're going to be using this formula...
+    # > https://www.desmos.com/calculator/ijtzbd2qnc
+    
+    n = len(cons)
+    a = road.drivers + 1 # Plus one since we just decremented it 
+    b = len(end_node.connections)
+    x = end_node.crash
+    
+    coeff = a / n 
+    logbx = math.log(b*x + 1, 10)
+    
+    # Get final function
+    fx = coeff * logbx
+    
+    # Check if our dice rolled lower 
+    dice = random.uniform(prob_floor, prob_ceil)
+    
+    dies = (dice < fx + prob_difference)
+    
+    #if (dies):
+    #   print(f"{a}/{n} * log({b}*{x} + 1) = ", fx, dice)
+    
+    # If fx is within the acceptable difference 
+    return dies
+
+# This will drop the safety cache
+def drop_saftey_cache():
+    # For all keys 
+    keys = optimal_distance.keys()
+    
+    # Create saftey dictionary.
+    optimal_saftey = dict()
+    
+    # Create another for each connection
+    for key in keys:
+        optimal_saftey[key] = dict()

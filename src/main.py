@@ -61,7 +61,7 @@ file.save_sim_data(ROAD_CSV_FILENAME, CONS_CSV_FILENAME, simulation_data)
 display.print_pyvis_begin()
 
 # Create the graph
-graphing.create_graph(GRAPH_FILENAME, roads, cons)
+graphing.create_graph(GRAPH_FILENAME, roads, cons, simulation_data)
 
 # Tell user that we have completed the program.
 display.print_pyvis_end()

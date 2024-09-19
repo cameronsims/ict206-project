@@ -32,7 +32,6 @@ def read_connection_manifest(filename, connections):
         
         connections.update({c.id: c})
 
-
 # Read road data from a file
 def read_road_manifest(filename, roads, connections):
     # Open the manifest file
@@ -72,12 +71,44 @@ def read_road_manifest(filename, roads, connections):
         # Add this instance to the set
         roads.update({r.id: r})
 
+# Save a row
+def save_data(stream, data, columns):
+    # Get last column 
+    LAST_COLUMN = columns[len(columns) - 1]
+    # Write header 
+    for col_name in columns:
+        stream.write(col_name)
+        # If not last 
+        if col_name != LAST_COLUMN:
+            stream.write(',')
+    stream.write('\n')
+
+    # For all connections...
+    for connection in data:
+        # Add each columns value into the row
+        for col in columns:
+            # Get the value 
+            column_value = connection[col]
+            # Add it 
+            stream.write(str(column_value))
+            # if not last... add a comma
+            if col != LAST_COLUMN:
+                stream.write(',')
+            # Otherwise, print a new line
+            else:
+                # Add row
+                stream.write('\n')
+
 # Save road data 
 def save_road_data(road_csv, road_data):
     # Open the file.
     file = open(road_csv, "w")
     
-    # Print in format
+    # The columns 
+    columns = [ "id", "entered", "exited" ]
+    
+    # For all connections...
+    save_data(file, road_data["vertex"], columns)
     
     
     # Close FSTREAM
@@ -90,26 +121,9 @@ def save_cons_data(cons_csv, cons_data):
     
     # The columns 
     columns = [ "id", "crossed", "targeted", "deaths" ]
-    LAST_COLUMN = columns[len(columns) - 1]
-    
-    # Print in format
-    file.write("id,crossed,targeted,crashes\n")
     
     # For all connections...
-    for connection in cons_data["nodes"]:
-        # Add each columns value into the row
-        for col in columns:
-            # Get the value 
-            column_value = connection[col]
-            # Add it 
-            file.write(str(column_value))
-            # if not last... add a comma
-            if col != LAST_COLUMN:
-                file.write(',')
-            # Otherwise, print a new line
-            else:
-                # Add row
-                file.write('\n')
+    save_data(file, cons_data["nodes"], columns)
     
     # Close FSTREAM
     file.close()
@@ -123,3 +137,6 @@ def save_sim_data(road_csv, cons_csv, simulation_data):
     save_cons_data(cons_csv, simulation_data["intersections"])
     
     # Save session data 
+    print("Population (Start): ", simulation_data["drivers"]["start"])
+    print("Population (Deaths):", simulation_data["drivers"]["deaths"])
+    print("Population (End):   ", simulation_data["drivers"]["end"])

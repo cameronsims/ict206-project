@@ -20,5 +20,5 @@ def get_driver_amount(errf):
     return get_uint(str, errf)
     
 def get_sim_time(errf): 
-    str = "Input the amount of days of the simulation (ticks are every hour): "
+    str = "Input the amount of months of the simulation (30 days in a month, 24 hours, ticks are every minute): "
     return get_uint(str, errf)

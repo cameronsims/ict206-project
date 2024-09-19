@@ -38,6 +38,12 @@ def print_pyvis_end():
 def print_hours(hours): 
     print("There are " + str(hours) + " hours left!")
     
+def print_start_optimal_path():
+    print("Calculating optimal paths...")
+
+def print_end_optimal_path():
+    print("Calculated all paths...")
+    
 def print_results(simulation_data):
     print("Simulation Results:")
     def get_indent(it):

@@ -34,6 +34,10 @@ def data_create(manifest):
     
 # Re-generate driver
 def driver_regenerate(roads, cons, driver, on_target):
+    """
+        NOTE TO SELF.
+        MAKE MUCH FASTER.
+    """
     # This is the lowest ID of our roads.
     BIGGEST_CON_ID = min(cons)
     
@@ -49,8 +53,8 @@ def driver_regenerate(roads, cons, driver, on_target):
     if currentID < SMALLEST_CON_ID or currentID > BIGGEST_CON_ID:
         currentID = random.randint(FLOOR, CIELING)
     
-    targetID  = random.randint(FLOOR, CIELING)
-    
+    # Set our target ID
+    targetID = currentID
     # loop until we find a new one
     while currentID == targetID:
         targetID = random.randint(FLOOR, CIELING)
@@ -63,11 +67,41 @@ def driver_regenerate(roads, cons, driver, on_target):
     
     # find new path
     driver.path = road.find_destination(driver, roads, cons, currentID, targetID)
+    
+    # Add the next road.
+    # If there is only one thing in our queue.
+    if len(driver.path) >= 2:
+        next_id = driver.path[1]
+        next_node = cons[next_id]
+        
+        this_node = cons[driver.path[0]]
+        
+        driver.on_road = road.get_road_between(roads, this_node, next_node)
+        driver.on_road.drivers += 1
+
+# We will generate the crash likely hoods here in this singleton
+class Road_Statistics:
+    floor = None 
+    ceil = None
+    
+    def generate(connections):
+        floor_id = min(connections, key=lambda con_id: connections[con_id].crash)
+        floor_crash = connections[floor_id].crash
+        Road_Statistics.floor = floor_crash / 10
+        
+        ciel_id = max(connections, key=lambda con_id: connections[con_id].crash)
+        ciel_crash = connections[ciel_id].crash
+        ceil = ciel_crash * 10000
+        
+        if ceil >= 1.00:
+            ceil = 1.00
+        
+        Road_Statistics.ceil = ceil
 
 # This is the update function it modifies how a driver runs, it runs every tick...
 # - road: is the node that the node is across
 # - regen_f: is a function that regenerates the path finding
-def driver_update(driver, roads, connections, on_crossed, on_target):
+def driver_update(driver, roads, connections, on_crossed, on_target, on_start, on_end):
     # The ID that we are using 
     from_node = -1
     to_id = -1
@@ -86,18 +120,26 @@ def driver_update(driver, roads, connections, on_crossed, on_target):
     from_node = connections[from_id]
     to_node   = connections[to_id]
     
-    road_con = road.get_road_between(roads, from_node, to_node)
+    # Get the connection between two roads...
+    road_con = driver.on_road # road.get_road_between(roads, from_node, to_node)
    
     # If the driver has finished their trip across a road...
     if driver.progress >= 1.00:
         # Then pop the beginning of the queue and find the next connection to go down
+        on_end(road_con.id)
+        
+        # Add that a driver has crossed this node
         if len(driver.path) > 1:
-            # Add that a driver has crossed this node 
+            # Call function to tell that we have crossed a node...
             on_crossed(driver.path[0])
             
             # Remove next
             driver.path.pop(0)
             driver.current = driver.path[0]
+            
+            # Set last 
+            if road_con.drivers > 0:
+                road_con.drivers -= 1
             
             # Now find a new target...
             # Set the target to the next node.
@@ -105,35 +147,34 @@ def driver_update(driver, roads, connections, on_crossed, on_target):
             
             # Check the intersections crash rate...
             # First we have to find the intersection that we're heading towards
-            for cid in road_con.connections:
-                con = connections[cid]
-                if driver.current in con.connections:
-                    # Roll the dice to see death
-                    dice = random.uniform(data["prob_floor"], data["prob_ceil"])
-                    difference = abs(dice - con.crash)
-                    # If the difference is too large, don't count it.
-                    # But if the difference is small, kill the driver
-                    if difference < data["float_difference"]:
-                        driver.died = True
-                        # Log a new death that occured on the road.
-                    break
+            floor = Road_Statistics.floor
+            ceil = Road_Statistics.ceil
+            diff = data["float_difference"]
+            driver.died = road.calculate_survival(driver, road_con, connections, floor, ceil, diff)
         
-        # If the driver is at their planned destination...
-        if driver.target == driver.current:
+        # If we have reached the end of our path
+        else:
             # Regenerate a driver
             driver_regenerate(roads, connections, driver, on_target)
+            on_start(driver.on_road.id)
+        
     # If the progress has no finished
     else:
         # Add to the progress...
         road_length = road_con.length
-        road_speed = road_con.speed
+        road_speed  = road_con.speed
         current_position = driver.progress * road_length
         current_progress = road_speed / data["sim_minutes"]
-        driver.progress = driver.progress + current_progress
+        driver.progress += current_progress
     # End of Driver - Update Function
 
 # Start the simulation   
 def begin(roads, cons):
+    # Find optimal paths 
+    display.print_start_optimal_path()
+    road.find_optimal_paths(roads, cons)
+    display.print_end_optimal_path()
+
     # This is data for our driver, contains size and array of all drivers
     # This is not a set as we are going to edit every single driver every single simulation cycle
     # This will result in O(n), therefore we don't care if it is a set.
@@ -142,7 +183,8 @@ def begin(roads, cons):
     
     # Get the amount of months we're running for (months * 30 * 24 = hours)
     sim_months = uinput.get_sim_time(display.print_error)
-    sim_hours = sim_months * simulation.data["sim_hours"] # simulation.data["sim_days"]
+    sim_days = sim_months * simulation.data["sim_days"]
+    sim_hours = sim_days * simulation.data["sim_hours"] 
 
     # This is where the simulation begins
     hours = sim_hours 
@@ -157,6 +199,7 @@ def begin(roads, cons):
         },
         
         "roads": {
+            "vertex": [],
             "length": len(roads)
         },
     
@@ -181,12 +224,66 @@ def begin(roads, cons):
         })
         # Increment 
         i += 1
+        
+    # For all road values 
+    i = 0
+    for r_id in roads:
+        # Add value for node.
+        simulation_data["roads"]["vertex"].append({
+            "id": r_id,
+            "entered": 0,
+            "exited": 0
+        })
+    
+    # Generate our floor and ceiling for crash generator...
+    Road_Statistics.generate(cons)
+    
+    # This is true when we need to refresh our optimal safety
+    killed_before_refresh = False
+    
     
     # Before we start the drivers, we must first initalise our lambda events 
     def on_crossed(node_id):
         simulation_data["intersections"]["nodes"][node_id - 1]["crossed"] += 1
+    
+    
     def on_target(node_id):
         simulation_data["intersections"]["nodes"][node_id - 1]["targeted"] += 1
+        
+    
+    # When we enter a road id
+    def on_start(road_id):
+        simulation_data["roads"]["vertex"][road_id - 1]["entered"] += 1
+    
+    
+    def on_end(road_id):
+        simulation_data["roads"]["vertex"][road_id - 1]["exited"] += 1
+    
+    
+    
+    # When a driver dies
+    def on_driverDeath(driver):
+        # Increment deaths in that connection
+        node_id = driver.current
+        node = cons[node_id]
+        
+        # Make the connection they died on more dangerous 
+        node.deaths += 1
+        node.crash += 1/(len(cons)*simulation_data["drivers"]["start"])
+        
+        simulation_data["intersections"]["nodes"][node_id - 1]["deaths"] += 1
+        simulation_data["drivers"]["deaths"] += 1   # Increment death total
+        
+        # Update the likely hood of death...
+        Road_Statistics.generate(cons)
+        killed_before_refresh = True
+    
+    
+    
+    
+    
+    
+    
     
     # Add the amount of drivers
     for i in range(drivers_n):
@@ -195,48 +292,44 @@ def begin(roads, cons):
         driver_regenerate(roads, cons, driver, on_target)        # Generate a path...
         drivers.update({ id: driver })                           # Append to array
     
+    # Amount of iterations per hour...
+    minute_hour = range(simulation.data["sim_minutes"])
+    
     # Run while we have hours to go...
     while hours > 0:
         # Show how much hours there is left to go 
         display.print_hours(hours)
         
+        # Used so we don't delete during iteration
+        to_delete = set()
+        
         # This is every minute for an hour...
-        for minute in range(simulation.data["sim_minutes"]):
+        for minute in minute_hour:
             # Do some logic per tick... ##########################
             
             # Check drivers ######################################
-            
-            # Driver
-            i = 0
-            to_delete = []
             for id in drivers:
                 # Get the driver object 
                 driver = drivers[id]
-                #print(driver.current, driver.target, driver.path, driver.progress)
-                simulation.driver_update(driver, roads, cons, on_crossed, on_target)
                 
-                # Check if driver has died
-                if driver.died:
-                    # Queue driver for deletion
-                    to_delete.append(id)
-                    
-                    # Increment deaths in that connection
-                    node_id = driver.current
-                    node = cons[node_id]
-                    node.deaths += 1
-                    simulation_data["intersections"]["nodes"][node_id - 1]["deaths"] += 1
-                    
-                    # Increment death total
-                    simulation_data["drivers"]["deaths"] += 1
-                i += 1
-            
-            # Remove the drivers from the array 
-            for id in to_delete:
-                drivers.pop(id)
+                # If driver is not dead...
+                if not driver.died:
+                    simulation.driver_update(driver, roads, cons, on_crossed, on_target, on_start, on_end)
+                else:
+                    to_delete.add(id)
             
             ######################################################=
         
+        # Add to deaths 
+        for id in to_delete:
+            driver = drivers[id]
+            on_driverDeath(driver)
+            drivers.pop(id)
+        
         # Decrement the Hours
+        if killed_before_refresh:
+            road.drop_saftey_cache()
+            killed_before_refresh = False
         hours = hours - 1
     
     # Save data due to end of simulation 
