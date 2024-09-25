@@ -146,12 +146,13 @@ class Road:
 # Behaviour Enum 
 # Behaviour of the driver, this impacts how they go to their destination 
 class Behaviour(Enum):
-    RECKLESS = 0        # QUICKEST (SPEED)
-    TIMID    = 1        # SAFEST   (DEATH)
-    SHORTEST = 2        # SHORTEST (LENGTH)
+    RECKLESS = 0        # QUICKEST (SPEED AND DISTANCE)
+    TIMID    = 1        # SAFEST   (LEAST CHANCE OF DEATH)
+    SHORTEST = 2        # SHORTEST (DISTANCE)
+    BALANCED = 3        # Balanced (SPEED, LENGTH and DEATH)
 
 # Used because Enums suck in python.
-BEHAVIOUR_ARR = ['RECKLESS', 'TIMID', 'SHORTEST']
+BEHAVIOUR_ARR = ['RECKLESS', 'TIMID', 'SHORTEST', 'BALANCED']
 BEHAVIOUR_N = len(BEHAVIOUR_ARR)
 
 #
@@ -190,7 +191,7 @@ class Driver:
         behaviour_index =  random.randint(0, BEHAVIOUR_N - 1)
         behaviour_value = BEHAVIOUR_ARR[behaviour_index]
         self.behaviour = Behaviour[behaviour_value]
-
+Driver.n = 0
 
 
 # Find Quickest Path (QUICKEST NEVER CHANGES)
@@ -200,11 +201,18 @@ def driver_heuristicQuickest(cur_node, road, next_node):
 
 # Find Safest   Path (THIS CHANGES)
 def driver_heuristicSafest  (cur_node, road, next_node):
-    return cur_node.crash * next_node.crash
+    return cur_node.crash + next_node.crash
 
 # Find Shortest Path (LENGTH NEVER CHANGES)
 def driver_heuristicShortest(cur_node, road, next_node):
     return road.length
+
+# Find most balanced path...
+def driver_heuristicBalanced(cur_node, road, next_node):
+    cost = road.speed + road.length 
+    death = cur_node.crash * next_node.crash
+    
+    return cost*death 
 
 # Heuristic Checks
 def driver_heuristic(driver):
@@ -218,6 +226,8 @@ def driver_heuristic(driver):
     # IF the driver wants the shortest length
     elif behaviour is Behaviour.SHORTEST:
         return driver_heuristicShortest
+    elif behaviour is Behaviour.BALANCED:
+        return driver_heuristicBalanced
     else:
         return None
 
@@ -338,18 +348,6 @@ def get_distances(roads, cons, current, destination):
     
     return distance
 
-# This is used recursively, to check nodes individually 
-# - Returns true if not all have been visited...
-# - False if all have been visited
-def check_path(current, visited, destination):
-    # Check all connections for our node.
-    for c in current.connections:
-        # Check visitation...
-        if c not in visited or c == destination:
-            return True
-    # None were founds...
-    return False
-    
 # This finds the path based on certain type of path finding
 # This is A*
 def find_path(roads, cons, current, destination, heuristic):
@@ -406,8 +404,6 @@ def find_path(roads, cons, current, destination, heuristic):
             
             # Next ID
             next_id = path[next_id]
-        # Add our start. 
-        ret_path.append(next_id)
         
         # Reverse our path...
         ret_path = ret_path[::-1]
@@ -424,7 +420,9 @@ def find_path(roads, cons, current, destination, heuristic):
         # If this ID is the id we're looking for 
         if location_id == destination.id:
             # Return the path 
-            return get_path(location_id)
+            opt_path = get_path(location_id)
+            #print(current.id, destination.id, opt_path)
+            return opt_path
         
         # Remove the first from the list 
         opened.remove(location_id)
@@ -469,6 +467,7 @@ def find_path(roads, cons, current, destination, heuristic):
 # opt[start][end] -> path
 optimal_distance = dict()
 optimal_speed = dict()
+optimal_balanced = dict()
 
 # This is dropped and re-generated every hour 
 optimal_saftey = dict()
@@ -497,19 +496,21 @@ def find_destination(driver, roads, cons, location, destination):
     # Also check if it is shortest 
     elif driver.behaviour == Behaviour.SHORTEST:
         return optimal_distance[location][destination]
+    elif driver.behaviour == Behaviour.BALANCED:
+        return optimal_balanced[location][destination]
     
     # This refers to the node IDs that have been visited
     if location in optimal_saftey:
         if destination not in optimal_saftey[location]:
             path = find_path(roads, cons, loc_node, dest_node, driver_heuristic(driver))
             optimal_saftey[location][destination] = path
-            optimal_saftey[destination][location] = path
+            optimal_saftey[destination][location] = path[::-1]
+            #print("Safety:", location, "->", destination, path)
             
     else:
         path = find_path(roads, cons, loc_node, dest_node, driver_heuristic(driver))
         optimal_saftey[location][destination] = path
-        optimal_saftey[destination][location] = path
-    
+        optimal_saftey[destination][location] = path[::-1]
     return optimal_saftey[location][destination]
 
 # We will generate our optimal paths for static variables (distance and speed)
@@ -519,14 +520,18 @@ def find_optimal_paths(roads, cons):
         optimal_distance[loc_id] = dict()
         optimal_speed   [loc_id] = dict()
         optimal_saftey  [loc_id] = dict()
+        optimal_balanced[loc_id] = dict()
+        
         
         # Set self to self to be -1
         optimal_distance[loc_id][loc_id] = [ -1 ]
         optimal_speed   [loc_id][loc_id] = [ -1 ]
+        optimal_balanced[loc_id][loc_id] = [ -1 ]
         
         for dest_id in cons:
             optimal_distance[loc_id][dest_id] = None
             optimal_speed   [loc_id][dest_id] = None
+            optimal_balanced[loc_id][dest_id] = None
     
     
     # For every single connection...
@@ -546,44 +551,83 @@ def find_optimal_paths(roads, cons):
                 # Get fastest by distance 
                 path_speed = find_path(roads, cons, loc, dest, driver_heuristicQuickest)
                 
+                # Get balanced 
+                path_balanced = find_path(roads, cons, loc, dest, driver_heuristicBalanced)
+                
                 # Find for both heuristics...
                 optimal_distance[loc_id][dest_id] = path_short
                 optimal_speed   [loc_id][dest_id] = path_speed
+                optimal_balanced[loc_id][dest_id] = path_balanced
                 
                 optimal_distance[dest_id][loc_id] = path_short
                 optimal_speed   [dest_id][loc_id] = path_speed
+                optimal_balanced[dest_id][loc_id] = path_balanced
 
+# This gets the probability to beat.
+def death_probability(cons, node, r):
+    n = len(cons)
+    a = r.drivers + 1         # Plus one since we just decremented it 
+    b = len(node.connections)
+    c = 1                     # How much we wish to shift it to the left on the graph
+    d = death_probability.d   # Static Variable.
+    x = node.crash            # This is the node that the driver is at.
+    
+    # Before we do anything, do some bounds checking 
+    if x <= 0.0:
+        return 0.0
+    
+    if x >= 1.0:
+        return 1.0
+    
+    denom = (d - a + 1)
+    
+    if denom == 0:
+        denom = 1
+       
+    abn = a*b*n
+    if not abn > 0:
+        abn = 1
+        
+    logabn = math.log(abn)
+    
+    gx = x * math.exp(logabn*(x - c))
+    hx = (1 / denom) * (x - c) + c
+    
+    #print(d)
+    
+    # Get final function
+    fx = gx * hx
+    
+    # If somehow our function is larger than 1.00, it won't matter as
+    # 1.00 is the max we're measuring and it will be as big as possible
+    
+    return fx
 
-
-
+# This is a hacky way of setting a global variable, but this is nessassary for the calculation 
+# and I don't really feel like passing the amount of drivers everyehere.
+def set_drivern(n):
+    death_probability.d = n
+def get_drivern():
+    return death_probability.d 
+death_probability.d = 1
 
 # This calculates how the driver crash calculation works 
-def calculate_survival(driver, road, cons, prob_floor, prob_ceil, prob_difference):
-    # Get the road...
-    road = driver.on_road
+def calculate_survival(driver, roads, cons, prob_floor, prob_ceil, prob_difference):
+    # Get on road.
+    r = driver.on_road
     
     # Get other node
     start_node = cons[ driver.current ]
     end_node = None 
-    for con_id in road.connections:
+    for con_id in r.connections:
         if con_id != start_node.id:
             # Set this, break loop
             end_node = cons[con_id]
             break
     
     # We're going to be using this formula...
-    # > https://www.desmos.com/calculator/ijtzbd2qnc
-    
-    n = len(cons)
-    a = road.drivers + 1 # Plus one since we just decremented it 
-    b = len(end_node.connections)
-    x = end_node.crash
-    
-    coeff = a / n 
-    logbx = math.log(b*x + 1, 10)
-    
-    # Get final function
-    fx = coeff * logbx
+    # > https://www.desmos.com/calculator/zokuyjyzvt
+    fx = death_probability(cons, start_node, r)
     
     # Check if our dice rolled lower 
     dice = random.uniform(prob_floor, prob_ceil)

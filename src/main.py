@@ -10,6 +10,7 @@
 import display     # Used for printing and showing to user
 import graphing    # Used for graphing
 import simulation  # Used for running the simulation
+import analysis    # Used for analysing the simulation
 import file        # Used for CSV
 
 #############################################
@@ -54,8 +55,11 @@ display.print_connection_end()
 # Get data for the simulation
 simulation_data = simulation.begin(roads, cons)
 
+# Perform Analysis...
+analysis.perform_analysis(roads, cons, simulation_data)
+
 # Save results
-file.save_sim_data(ROAD_CSV_FILENAME, CONS_CSV_FILENAME, simulation_data)
+file.save_sim_data(roads, ROAD_CSV_FILENAME, cons, CONS_CSV_FILENAME, simulation_data)
 
 # Create the graph
 display.print_pyvis_begin()

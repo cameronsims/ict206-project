@@ -47,6 +47,34 @@ display.print_connection_end()
 # Create the graph
 display.print_pyvis_begin()
 
-graphing.create_graph(GRAPH_FILENAME, roads, cons)
+# Generate boring data 
+simulation_data = {
+    "intersections": { "nodes": [] },
+    "roads": { "vertex": [] }
+}
+
+simulation_data["intersections"]["length"] = 1
+for con_id in cons:
+    # Connections 
+    #crossed,targeted,deaths,crash probability
+    simulation_data["intersections"]["nodes"].append({
+        "id": con_id,
+        "crossed": 1,
+        "targeted": 1,
+        "deaths": 1
+    })
+
+simulation_data["roads"]["length"] = 1
+for road_id in roads:
+    # Connections 
+    #crossed,targeted,deaths,crash probability
+    simulation_data["roads"]["vertex"].append({
+        "id": road_id,
+        "entered": 1,
+        "exited": 1
+    })
+
+# Create graph
+graphing.create_graph(GRAPH_FILENAME, roads, cons, simulation_data)
 
 display.print_pyvis_end()

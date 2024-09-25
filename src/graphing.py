@@ -22,10 +22,12 @@ def create_graph(filename, roads, cons, simulation_data):
     net.show_buttons(filter_=['physics'])
     
     #net.set_options("{physics:{nodeDistance:200}}")
+    def metric(n_id):
+        return cons[n_id].deaths
     
     # Get the node where most the deaths occured...
-    highest_death_node_id = max(cons, key=lambda n_id: cons[n_id].deaths)
-    lowest_death_node_id = min(cons, key=lambda n_id: cons[n_id].deaths)
+    highest_death_node_id = max(cons, key=metric)
+    lowest_death_node_id = min(cons, key=metric)
     
     highest_death_node = cons[highest_death_node_id]
     lowest_death_node = cons[lowest_death_node_id]
@@ -88,11 +90,21 @@ def create_graph(filename, roads, cons, simulation_data):
     def conjestion(id):
         road = roads[id]
         entered = road_data_all[id - 1]["entered"]
-        return entered / (road.length * road.speed)
+        cost = (road.length * road.speed)
+        
+        if cost == 0:
+            return 0
+            
+        return entered / cost
     def pass_rate(id):
         road = roads[id]
         data = road_data_all[id - 1]
-        return data["entered"] / data["exited"]
+        
+        denom = data["exited"]
+        if denom == 0:
+            denom = 1
+        
+        return data["entered"] / denom
     
     
     highest_conjestion_id = max(roads, key=conjestion)
@@ -141,7 +153,10 @@ def create_graph(filename, roads, cons, simulation_data):
         r = roads[rid]
         road_data = road_data_all[rid - 1]
         
-        road_size = conjestion(rid) / lowest_conjestion
+        if lowest_conjestion != 0:
+            road_size = conjestion(rid) / lowest_conjestion
+        else:
+            road_size = 0.1
         
         # Add an edge
         TITLE = make_road_title(r, road_data)

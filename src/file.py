@@ -75,6 +75,7 @@ def read_road_manifest(filename, roads, connections):
 def save_data(stream, data, columns):
     # Get last column 
     LAST_COLUMN = columns[len(columns) - 1]
+    
     # Write header 
     for col_name in columns:
         stream.write(col_name)
@@ -100,7 +101,7 @@ def save_data(stream, data, columns):
                 stream.write('\n')
 
 # Save road data 
-def save_road_data(road_csv, road_data):
+def save_road_data(roads, road_csv, road_data):
     # Open the file.
     file = open(road_csv, "w")
     
@@ -110,17 +111,38 @@ def save_road_data(road_csv, road_data):
     # For all connections...
     save_data(file, road_data["vertex"], columns)
     
-    
     # Close FSTREAM
     file.close()
 
 # Save Connection Data
-def save_cons_data(cons_csv, cons_data):
+def save_cons_data(cons, cons_csv, cons_data, roads):
     # Open the file.
     file = open(cons_csv, "w")
     
+    # This gets all the roads of the connection
+    def read_probabilities(con_id):
+        # Probability String 
+        probabilities = ""
+        # Get the connections...
+        con = cons[con_id]
+        
+        # Check all roads 
+        for r_id in con.connections:
+            # Calculate the percentage.
+            r = roads[r_id]
+            px = road.death_probability(cons, con, r)
+            s = (str(px) + ' ')
+            probabilities += s
+        return probabilities
+    
     # The columns 
-    columns = [ "id", "crossed", "targeted", "deaths" ]
+    columns = [ "id", "crossed", "targeted", "deaths", "crash probability" ]
+    
+    # Connection IDs
+    last = len(columns) - 1
+    col_name = columns[last]
+    for con_id in cons:
+        cons_data["nodes"][con_id - 1][col_name] = read_probabilities(con_id)
     
     # For all connections...
     save_data(file, cons_data["nodes"], columns)
@@ -129,14 +151,10 @@ def save_cons_data(cons_csv, cons_data):
     file.close()
 
 # Save simulation data   
-def save_sim_data(road_csv, cons_csv, simulation_data):
+def save_sim_data(roads, road_csv, cons, cons_csv, simulation_data):
+    # road.road_death_probability(road, cons, road, con)
     # Save road data 
-    save_road_data(road_csv, simulation_data["roads"])
+    save_road_data(roads, road_csv, simulation_data["roads"])
     
     # Save con data 
-    save_cons_data(cons_csv, simulation_data["intersections"])
-    
-    # Save session data 
-    print("Population (Start): ", simulation_data["drivers"]["start"])
-    print("Population (Deaths):", simulation_data["drivers"]["deaths"])
-    print("Population (End):   ", simulation_data["drivers"]["end"])
+    save_cons_data(cons, cons_csv, simulation_data["intersections"], roads)

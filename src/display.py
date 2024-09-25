@@ -7,16 +7,31 @@
 # Console Imports
 import colorama as clr  # Used for colouring the console
 
+def default_colour_code():
+    return clr.Fore.WHITE + clr.Back.BLACK
+
 def default_colour():
-    print(clr.Fore.WHITE + clr.Back.BLACK)
+    print(default_colour_code())
 
 def print_signature():
-    print(clr.Fore.WHITE + clr.Back.BLUE + "+---------------------------------------+")
-    print("|                                       |")
-    print("| ICT206 - Intelligent Systems: Project |")
-    print("|        Cameron Sims (34829454)        |")
-    print("|                                       |")
-    print("+---------------------------------------+")
+    colour = clr.Fore.WHITE + clr.Back.BLUE
+    defclr = default_colour_code()
+    print(colour + "+---------------------------------------+" + defclr)
+    print(colour + "|                                       |" + defclr)
+    print(colour + "| ICT206 - Intelligent Systems: Project |" + defclr)
+    print(colour + "|        Cameron Sims (34829454)        |" + defclr)
+    print(colour + "|                                       |" + defclr)
+    print(colour + "+---------------------------------------+" + defclr)
+    default_colour()
+    
+def print_analysis_signature():
+    colour = clr.Fore.YELLOW + clr.Back.RED
+    defclr = default_colour_code()
+    print(colour + "+---------------------------------------+" + defclr)
+    print(colour + "|                                       |" + defclr)
+    print(colour + "|          Performing Analysis          |" + defclr)
+    print(colour + "|                                       |" + defclr)
+    print(colour + "+---------------------------------------+" + defclr)
     default_colour()
     
 def print_error(str):
@@ -107,3 +122,5 @@ def print_results(simulation_data):
     #print("      Amount:             ", simulation_data["roads"]["length"])
     #print("  Intersections:")
     #print("      Amount:             ", simulation_data["intersections"]["length"])
+
+

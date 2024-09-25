@@ -2,8 +2,13 @@
 # Created by Cameron Sims 
 
 ## How to install properly
-Install Pyvis to show network
+#Install Pyvis 
+Install Pyvis to show network HTML
 https://pyvis.readthedocs.io/en/latest/
+
+#Install Network X
+Install NetworkX for functionality with Pyvis
+https://networkx.org/documentation/stable/index.html
 
 ## How The Simulation Works
 The program is a simulation of "roads" where there are several "drivers" who will "drive" across these road nodes over the course of a period of time.
@@ -13,5 +18,5 @@ There are a number of events (crashes, deaths, etc) which can happen on any road
 
 ## How To Change The Simulation
 # Files
-There is a variable file (located in ./data/variables.txt) which is important as it defines important behaviour and statistical probablity. Changing any one of these variables will alter how the simulation will function, and likelyhoods of events happening.
-If any file that is required for running is not existant or contains illogical data, the simulation will either quit and tell you that it requires a file or needs modification of a value.
+In the "data" directory, there is connections.csv and roads.csv which have the vertexes and nodes of the simulation. You can create vertexes by adding a new row in the file and giving it appropriate column data. You can create new nodes by adding a new row in the connections file. Each road must refer to a "from" and "to" node which are the connections between road intersections.
+Also in the "data" directory, is "sim_data.json" which modifies certain variables to do with the simulation.
