@@ -8,6 +8,8 @@
 
 # Internal Imports
 import road     # Used to save data into
+import death
+import weather
 
 # External Imports
 import csv      # Used to read a csv file
@@ -70,6 +72,37 @@ def read_road_manifest(filename, roads, connections):
         
         # Add this instance to the set
         roads.update({r.id: r})
+        
+def read_weather_file(filename):
+    # Open the manifest file
+    file = open(filename, "r")
+    
+    # Read the data
+    data = csv.DictReader(file)
+    
+    # Loop through all values...
+    total = 0.00
+    
+    # For all the lines in the file...
+    for line in data:
+        # Set which is used to find valeus with our ID
+        NAME = line["TYPE"]
+        PERCENT = line["PERCENT"]
+        CRASH_MOD = line["CRASH"]
+        SPEED_MOD = line["SPEED"]
+        
+        for i in range(weather.WEATHER_N):
+            if weather.WEATHER_ARR[i] == NAME:
+                # If it is, set it and continue with loop.
+                f_px = float(PERCENT)
+                f_px = abs(f_px)
+                total = total + f_px
+                weather.Weather.percentages[i] = total
+                
+                weather.Weather.crash_modifiers[i] = float(CRASH_MOD)
+                weather.Weather.speed_modifiers[i] = float(SPEED_MOD)
+                break
+            i += 1
 
 # Save a row
 def save_data(stream, data, columns):
@@ -85,11 +118,11 @@ def save_data(stream, data, columns):
     stream.write('\n')
 
     # For all connections...
-    for connection in data:
+    for row in data:
         # Add each columns value into the row
         for col in columns:
             # Get the value 
-            column_value = connection[col]
+            column_value = row[col]
             # Add it 
             stream.write(str(column_value))
             # if not last... add a comma
@@ -130,7 +163,7 @@ def save_cons_data(cons, cons_csv, cons_data, roads):
         for r_id in con.connections:
             # Calculate the percentage.
             r = roads[r_id]
-            px = road.death_probability(cons, con, r)
+            px = death.death_probability(cons, con, r)
             s = (str(px) + ' ')
             probabilities += s
         return probabilities
@@ -150,11 +183,40 @@ def save_cons_data(cons, cons_csv, cons_data, roads):
     # Close FSTREAM
     file.close()
 
+# Save Weather data 
+def save_weather_data(weather_csv, weather_data):
+    # Open the file.
+    file = open(weather_csv, "w")
+    
+    # Create an array to represent the objects...
+    
+    # The columns 
+    columns = [ "type", "frequency", "deaths" ]
+    
+    # The raw array
+    weather_object_array = []
+    for weather_name in weather.WEATHER_ARR:
+        this_obj = {
+            "type": weather_name,
+            "frequency": weather_data[weather_name]["frequency"],
+            "deaths": weather_data[weather_name]["deaths"]
+        }
+        weather_object_array.append(this_obj)
+    
+    # For all connections...
+    save_data(file, weather_object_array, columns)
+    
+    # Close FSTREAM
+    file.close()
+
 # Save simulation data   
-def save_sim_data(roads, road_csv, cons, cons_csv, simulation_data):
+def save_sim_data(roads, road_csv, cons, cons_csv, weather_csv, simulation_data):
     # road.road_death_probability(road, cons, road, con)
     # Save road data 
     save_road_data(roads, road_csv, simulation_data["roads"])
     
     # Save con data 
     save_cons_data(cons, cons_csv, simulation_data["intersections"], roads)
+    
+    # Save weather data 
+    save_weather_data(weather_csv, simulation_data["weather"])

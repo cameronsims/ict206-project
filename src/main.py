@@ -22,6 +22,7 @@ DATA_DIRECTORY = "./data/"
 ROAD_MANIFEST = DATA_DIRECTORY + "roads.csv"             # Location of the road csv file
 CONNECT_MANIFEST = DATA_DIRECTORY + "connections.csv"    # Location of the connections csv file
 SIMDATA_MANIFEST = DATA_DIRECTORY + "sim_data.json"      # Location of the data json file
+WEATHER_CSV = DATA_DIRECTORY + "weather.csv"             # Location of weather information
 
 # This where our file is going to be output (relative)
 OUTPUT_DIRECTORY = "./out/"
@@ -29,9 +30,12 @@ GRAPH_FILENAME = OUTPUT_DIRECTORY + "graph.html"
 
 ROAD_CSV_FILENAME = OUTPUT_DIRECTORY + "road_report.csv"
 CONS_CSV_FILENAME = OUTPUT_DIRECTORY + "intersection_report.csv"
+WEATHER_CSV_FILENAME = OUTPUT_DIRECTORY + "weather_report.csv"
 
 # Import data from an external file
 simulation.data_create(SIMDATA_MANIFEST)
+
+
 
 # Print Signature
 display.print_signature()
@@ -48,6 +52,7 @@ display.print_connection_begin()
 # Read the data pertaining to how the structure of the roads work
 file.read_connection_manifest(CONNECT_MANIFEST, cons)
 file.read_road_manifest      (ROAD_MANIFEST,    roads, cons)
+file.read_weather_file   (WEATHER_CSV)
 
 # Tell user we succeeded
 display.print_connection_end()
@@ -59,7 +64,17 @@ simulation_data = simulation.begin(roads, cons)
 analysis.perform_analysis(roads, cons, simulation_data)
 
 # Save results
-file.save_sim_data(roads, ROAD_CSV_FILENAME, cons, CONS_CSV_FILENAME, simulation_data)
+file.save_sim_data(roads, ROAD_CSV_FILENAME, cons, CONS_CSV_FILENAME, WEATHER_CSV_FILENAME, simulation_data)
+
+
+
+
+
+#############################################
+#                                           # 
+#           Crazy Graph non-sense           #
+#                                           #
+#############################################
 
 # Create the graph
 display.print_pyvis_begin()

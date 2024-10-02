@@ -6,6 +6,7 @@
 
 import display 
 import road
+import death
 
 def get_intersections_with_deaths(cons):
     # This is the array we're using to gather
@@ -35,23 +36,28 @@ def show_pop_data(roads, cons, simulation_data):
     # Get nodes with deaths in them
     nodes_with_deaths = get_intersections_with_deaths(cons)
     
-    print("In the simulation the population is", pop_dec_percent, "percent of the starting population (", pop_start, "->", pop_end, ")")
+    display.print_pops(pop_dec_percent, pop_start, pop_end)
     
     
     if len(nodes_with_deaths) > 0:
         # Show the total deaths
-        print("There was a total of", pop_deaths, "death(s) overall, these deaths were caused at the following intersection ids:")
+        display.print_deaths(pop_deaths)
+        
         # Generate the two deaths...
         for con_id in nodes_with_deaths:
             # Connection ID 
             con = cons[con_id]
-            print("    Node ID:", con_id, "had a total of", cons[con_id].deaths, "deaths")
+            display.print_deaths_on_node(con_id, cons[con_id].deaths)
     else:
-        print("No deaths occured on the road network.")
+        display.print_no_deaths_on_any_node()
+
+def show_driver_behaviour(simulation_data):
+    driver_behav = simulation_data["drivers"]["behaviours"]
+    for bname in driver_behav:
+        type = driver_behav[bname]
+        display.print_driver_behaviour_deaths(bname, type["deaths"], type["population"])
 
 def perform_analysis(roads, cons, simulation_data):
-    # Seperate simulation and results 
-    print()
     
     # State that the analysis is beginning
     display.print_analysis_signature()
@@ -61,50 +67,42 @@ def perform_analysis(roads, cons, simulation_data):
     driver_deaths = driver_data["deaths"]
     
     show_pop_data(roads, cons, simulation_data)
+    show_driver_behaviour(simulation_data)
     
     # Tell issues to do with the value 
     for con_id in cons:
         # Get on in question 
         con = cons[con_id]
         
-        print("Node ID:", con_id, "( Deaths:", con.deaths, ")")
+        display.print_node_head(con_id, con.deaths)
         has_issues = False
+        
+        # CALCULATE VALUES 
+        n = len(cons)
+        b = len(con.connections)
+        c = 1
+        d = death.death_probability.d
+        x = con.crash
+        display.print_formula(n, b, c, d, x)
         
         # Give advice for this node, and its roads
         for r_id in con.connections:
             r = roads[r_id]
-            p_index = road.death_probability(cons, con, r)
             
-            print("    Road ID:")
-            
+            p_index = death.death_probability(cons, con, r)
+            display.print_road_head(r_id)
+        
             # P Index is large and big chance for death
             if p_index > 0.005:
-                print("       ", r_id, "has a large chance (", p_index, ") of crashing into this node.")
+                display.print_road_big_danger(p_index)
                 has_issues = True
-                
-                # Now lets check why this is so high...
-            
-            # Print the index for formula...
-            n = len(cons)
-            b = len(con.connections)
-            c = 1
-            d = road.death_probability.d
-            x = con.crash
-            
-            numer = str(x) + " * e^[log10(a * " + str(b * n) + ") * " + str(x - c) + "]"
-            denom = "[" + str(x - c) + " / (" + str(d + 1) + " * a) + " + str(c) + "]"
-            
-            print("        p(a) = (" + numer + ") / " + str(denom) + ", { a = # of drivers on connecting road(s) }")
             
         # If the value is disproportionally high
         mean_deaths_per_con = driver_deaths / len(cons)
         if con.deaths > mean_deaths_per_con:
-            print("    This node has significantly high amount of deaths proportonally.")
+            display.print_node_big_danger()
             has_issues = True
         
         # If there is no issues...
         if not has_issues:
-            print("    This node has no issues, and crashing likely hood as low.")
-    
-    # Make a new line after
-    print()
+            display.print_node_no_issues()
