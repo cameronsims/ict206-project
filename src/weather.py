@@ -59,6 +59,7 @@ class Time(Enum):
     NIGHT = 3
 TIME_ARR = ["EARLY_MORNING", "MORNING", "EVENING", "NIGHT"]
 TIME_N = len(TIME_ARR)
+Time.crash_modifiers = list( range(TIME_N) )
 
 # This calculates what time of day we're at 
 def time_of_day(hour):
@@ -71,7 +72,7 @@ def time_of_day(hour):
     # 19-23: Night
     
     # If it is early morning
-    if rel_hr < 7:
+    if rel_hr < 7:  
         return Time.EARLY_MORNING
     # If it is morning
     elif rel_hr < 13:
@@ -80,5 +81,4 @@ def time_of_day(hour):
     elif rel_hr < 19:
         return Time.EVENING
     # If it is late night
-    else:
-        return Time.NIGHT
+    return Time.NIGHT

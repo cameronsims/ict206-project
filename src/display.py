@@ -7,6 +7,9 @@
 # Console Imports
 import colorama as clr  # Used for colouring the console
 
+from weather import time_of_day
+from uinput import get_uint
+
 def default_colour_code():
     return clr.Style.NORMAL + clr.Fore.WHITE + clr.Back.BLACK
 
@@ -20,12 +23,12 @@ def road_colour_code():
     return clr.Fore.WHITE + clr.Back.BLUE
     
 def formula_colour_code():
-    return clr.Style.DIM + clr.Fore.WHITE + clr.Back.BLUE
+    return clr.Style.DIM + clr.Fore.WHITE + clr.Back.BLACK
     
 def get_formula_string():
     prior = formula_colour_code()
     after = default_colour_code()
-    print(prior + "a: # of near drivers, w: weather modifier" + after)
+    return prior + "a: # of near drivers, w: time modifier" + after
 
 def print_signature():
     colour = clr.Fore.WHITE + clr.Back.BLUE
@@ -66,14 +69,15 @@ def print_pyvis_end():
     print("- Python Graph Has Concluded!")
     
 def print_hours(start_hours, hours, start_population, population, weather_str): 
+    time = time_of_day(start_hours - hours)
     hours_str = str(hours)
     print("There are " + hours_str + " hours left!", end=" ")
     print('(' + hours_str + '/' + str(start_hours) + ")", end=" ")
     print('(' + str(population) + "/" + str(start_population) + ')', end=" ")
-    print("(" + weather_str + ")")
- 
+    print("(" + weather_str + ", " + str(time) + ")")
 
- 
+
+
 def print_formula(n, b, c, d, x):
     
     rnd_to = 3
@@ -123,69 +127,12 @@ def print_start_optimal_path():
 
 def print_end_optimal_path():
     print("Calculated all paths...")
-    
-def print_results(simulation_data):
-    print("Simulation Results:")
-    def get_indent(it):
-        # Indent amount 
-        indent = ""
-        for i in range(it):
-            indent += "   "
-        return indent
-    
-    def print_needed(data):
-        if type(data) is dict:
-            return True
-        if type(data) is list:
-            return True 
-        return False
-    
-    def print_type(data, it):
-        indent = get_indent(it)
-        
-        if type(data) is dict:
-            print(indent + '{')
-            print_obj(data, it + 1)
-            print(indent + '}')
-            
-        elif type(data) is list:
-            print(indent + '[')
-            print_arr(data, it + 1)
-            print(indent + ']')
-            
-        else:
-            print(indent + str(data))
-    
-    def print_arr(arr, it):
-        # For all values...
-        for value in arr:
-            print_type(value, it)
-        
-    def print_obj(obj, it):
-        # Indent amount 
-        indent = get_indent(it)
-        
-        # Print object key and value 
-        for key, value in obj.items():
-            # The name of the value 
-            name = indent + str(key).title() + ": "
-            
-            # Check if the value is an object  
-            if (print_needed(value)):
-                print(name)
-                print_type(value, it)
-            else:
-                print(name + str(value))
-    
-    print_type(simulation_data, 0)
-    
-    #print("  Drivers:")
-    #print("      Population (Start): ", simulation_data["drivers"]["start"])
-    #print("      Population (End):   ", simulation_data["drivers"]["end"])
-    #print("      Total Deaths:       ", simulation_data["drivers"]["deaths"])
-    #print("  Roads:")
-    #print("      Amount:             ", simulation_data["roads"]["length"])
-    #print("  Intersections:")
-    #print("      Amount:             ", simulation_data["intersections"]["length"])
-
-
+ 
+# Show the files
+def print_dir_files(dir_name, directories):
+    i = 0
+    print(dir_name + ":")
+    for dir in directories:
+        header = "    (" + str(i) + "):"
+        print(header, dir)
+        i += 1

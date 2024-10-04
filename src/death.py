@@ -9,12 +9,17 @@ import math
 
 # This gets the probability to beat.
 def death_probability(cons, node, r):
+
+    difference = abs(death_probability.time_mod - death_probability.weather_mod)
+    maximum = max(death_probability.time_mod, death_probability.weather_mod)
+    modifier = maximum + difference / 2
+
     n = len(cons)
     a = r.drivers + 1         # Plus one since we just decremented it 
     b = len(node.connections)
     c = 1                     # How much we wish to shift it to the left on the graph
     d = death_probability.d   # Static Variable.
-    x = death_probability.weather_mod * node.crash            # This is the node that the driver is at.
+    x = modifier * node.crash            # This is the node that the driver is at.
     
     # Before we do anything, do some bounds checking 
     if x <= 0.0:
@@ -28,17 +33,20 @@ def death_probability(cons, node, r):
     if denom == 0:
         denom = 1
        
-    abn = a*b*n
+    abn = a*b*pow(n, b/a)
+    
     if not abn > 0:
         abn = 1
         
     logabn = math.log(abn)
     
     gx = x * math.exp(logabn*(x - c))
-    hx = (1 / denom) * (x - c) + c
+    hx = ((x - c) / denom) + c
     
     # Get final function
     fx = gx * hx
+    
+    #print(fx, x)
     
     # If somehow our function is larger than 1.00, it won't matter as
     # 1.00 is the max we're measuring and it will be as big as possible
@@ -47,6 +55,7 @@ def death_probability(cons, node, r):
 
 # This is done in weather modifiers
 death_probability.weather_mod = 1.0
+death_probability.time_mod = 1.0
 
 # This is a hacky way of setting a global variable, but this is nessassary for the calculation 
 # and I don't really feel like passing the amount of drivers everyehere.

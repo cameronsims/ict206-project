@@ -9,6 +9,7 @@
 # External Imports
 import pyvis.network    # Read networks
 import networkx as nx   # More network imports
+import file
 
 #############################################
 
@@ -68,13 +69,13 @@ def make_node_title(con, node_data):
    return title
 
 # Used to set roads and connections to a graph
-def create_graph(filename, roads, cons, simulation_data):
+def create_graph(filename, graph_file, roads, cons, simulation_data):
 
     net = pyvis.network.Network(notebook = True)
     
     # Physics Nodes
-    net.toggle_physics(True)
-    net.show_buttons(filter_=['physics'])
+    #net.toggle_physics(True)
+    #net.show_buttons(filter_=['physics'])
     
     #net.set_options("{physics:{nodeDistance:200}}")
     def metric(n_id):
@@ -118,9 +119,20 @@ def create_graph(filename, roads, cons, simulation_data):
         death_scale = ((node_data["deaths"] + 1) / average_deaths) + 1
         total_visited += node_data["crossed"]
         
+        # Get the colour 
+        red_scale = highest_death 
+        if red_scale == 0:
+            red_scale = 1
+            
+        red_clr = hex(int(255*(node_data["deaths"] / red_scale) ))
+        grn_clr = hex(32)
+        blu_clr = hex(32)
+        node_colour = '#' + str(red_clr)[2:].rjust(2, '0') + str(grn_clr)[2:].rjust(2, '0') + str(blu_clr)[2:].rjust(2, '0')
+        
         net.add_node(con.id, 
                      label=str(con.id), 
                      size=death_scale, 
+                     color=node_colour,
                      title=TITLE)
     
     # Find roads now
@@ -175,17 +187,32 @@ def create_graph(filename, roads, cons, simulation_data):
         r = roads[rid]
         road_data = road_data_all[rid - 1]
         
+        road_scale = average_conjestion
         if average_conjestion == 0:
-            average_conjestion = 1
+            road_scale = 1
         road_size = (conjestion(rid) - lowest_conjestion + 1) / (average_conjestion)
+        
+        red_clr = hex(32)
+        grn_clr = hex(0)
+        blu_clr = hex(0)
+        
+        if highest_pass_rate != 0:
+            grn_clr = hex(int(255*(pass_rate(rid) / highest_pass_rate)))
+        if highest_conjestion != 0:
+            blu_clr = hex(int(255*(conjestion(rid) / highest_conjestion)))
+        
+        road_colour = '#' + str(red_clr)[2:].rjust(2, '0') + str(grn_clr)[2:].rjust(2, '0') + str(blu_clr)[2:].rjust(2, '0')
         
         # Add an edge
         TITLE = make_road_title(r, road_data, pass_rate, conjestion)
         net.add_edge(r.connections[0], r.connections[1],
                      label = r.name,
                      value = road_size,
+                     color = road_colour,
                      length = r.length,
                      title = TITLE)
     
+    opts =  file.read_network_file(graph_file) 
+    net.set_options(opts)
     
     net.show(filename)

@@ -135,7 +135,7 @@ def find_path(roads, cons, current, destination, greedf):
         # If this ID is the id we're looking for 
         if location_id == destination.id:
             # Return the path 
-            opt_path = get_path(location_id)]
+            opt_path = get_path(location_id)
             return opt_path
         
         # Remove the first from the list 
