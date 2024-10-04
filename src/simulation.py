@@ -58,9 +58,9 @@ def driver_regenerate(roads, cons, driver, on_target):
             # And means guaranteed death...
             node = cons[currentID]
             
-            # Do not select this node...
-            if node.crash > 0.5:
-                currentID = -1
+            # # Do not select this node...
+            # if node.crash > 0.5:
+            #     currentID = -1
     
     # Set our target ID
     targetID = currentID
@@ -74,9 +74,9 @@ def driver_regenerate(roads, cons, driver, on_target):
             node = cons[targetID]
             
             # Do not select this node, unless there is no other option.
-            if not driver_regenerate.node_crash_average < 0.5 and not driver_regenerate.node_crash_min:
-                if node.crash > 0.5:
-                    targetID = -1
+            # if not driver_regenerate.node_crash_average < 0.5 and not driver_regenerate.node_crash_min:
+            #     if node.crash > 0.5:
+            #         targetID = -1
     
     # Target and Current
     driver.current = currentID
@@ -134,7 +134,7 @@ class Road_Statistics:
 # This is the update function it modifies how a driver runs, it runs every tick...
 # - road: is the node that the node is across
 # - regen_f: is a function that regenerates the path finding
-def driver_update(driver, roads, connections, weather_obj, on_crossed, on_target, on_start, on_end):
+def driver_update(driver, roads, connections, time_of_day, weather_obj, on_crossed, on_target, on_start, on_end):
     # The ID that we are using 
     from_id = driver.current 
     to_id = -1
@@ -194,25 +194,14 @@ def driver_update(driver, roads, connections, weather_obj, on_crossed, on_target
             driver_regenerate(roads, connections, driver, on_target)
             on_start(driver.on_road.id)
         
+        
+        # Calculate the death at the end.
         rolled_death = death.calculate_survival(driver, road_con, connections, floor, ceil, diff)
         
         # Set the driver death...
         if rolled_death:
             # If the driver died return the function, it wastes clock cycles
             driver.died = rolled_death
-            
-            # # Get the road that the driver died on.
-            # r = driver.on_road
-            # 
-            # # Get the node that they didn't arrive at.
-            # for con_id in r.connections:
-            #     # If it is not the user.
-            #     if con_id != driver.current:
-            #         # Set the current value to this node they died at.
-            #         driver.current = con_id
-            #         break
-            # 
-            # return
             
         # Now find a new target...
         # Set the target to the next node.
@@ -225,11 +214,14 @@ def driver_update(driver, roads, connections, weather_obj, on_crossed, on_target
         road_length = road_con.length
         road_speed  = road_con.speed
         
+        # What time is it?
         
         speed_mod = 1.0
         if driver.behaviour != road.Behaviour.RECKLESS:
+            # Set their speed modifier
             speed_mod = weather.speed_modifier(weather_obj)
         else:
+            # Reckless Drivers are fast.
             speed_mod = 1.2
             
         actual_speed = speed_mod * road_speed
@@ -375,7 +367,10 @@ def loop(simulation_data, roads, cons, drivers, hours, on_crossed, on_target, on
     
     # Set the death modifier 
     wd_modifier = weather.death_modifier(weather_obj)
+    tm_modifier = weather.Time.crash_modifiers[ time_of_day.value ]
+    
     death.death_probability.weather_mod = wd_modifier
+    death.death_probability.time_mod = tm_modifier
     
     simulation_data["weather"][weather_str]["frequency"] += 1
     
@@ -400,7 +395,7 @@ def loop(simulation_data, roads, cons, drivers, hours, on_crossed, on_target, on
             denom = 2500
         
         node.deaths += 1
-        node.crash += 1/denom
+        node.crash += 1 / denom
         
         behaviour_str = road.BEHAVIOUR_ARR[driver.behaviour.value]
         
@@ -415,8 +410,6 @@ def loop(simulation_data, roads, cons, drivers, hours, on_crossed, on_target, on
     
     # This is every minute for an hour...
     for minute in minute_hour:
-        # Do some logic per tick... ##########################
-        
         # Check drivers ######################################
         for id in drivers:
         
@@ -427,7 +420,7 @@ def loop(simulation_data, roads, cons, drivers, hours, on_crossed, on_target, on
                 
                 # If driver is not dead...
                 if not driver.died:
-                    driver_update(driver, roads, cons, weather_obj, on_crossed, on_target, on_start, on_end)
+                    driver_update(driver, roads, cons, time_of_day, weather_obj, on_crossed, on_target, on_start, on_end)
                 else:
                     to_delete.add(id)
         
@@ -481,14 +474,7 @@ def begin(roads, cons):
     def on_end(road_id):
         simulation_data["roads"]["vertex"][road_id - 1]["exited"] += 1
     
-    
-    
-    
-    
-    
-    
-    
-    
+    # Create drivers.
     create_drivers(drivers, drivers_n, roads, cons, on_target)
     for driver_id in drivers:
         # Add to the data frequency
@@ -499,7 +485,7 @@ def begin(roads, cons):
     # Run while we have hours to go...
     loop.start_hours = hours
     while hours > 0:
-        loop(simulation_data, roads, cons, drivers, hours,  on_crossed, on_target, on_start, on_end)
+        loop(simulation_data, roads, cons, drivers, hours, on_crossed, on_target, on_start, on_end)
         
         # Decrement the Hours
         hours = hours - 1
@@ -508,4 +494,3 @@ def begin(roads, cons):
     simulation_data["drivers"]["end"] = len(drivers)
     
     return simulation_data;
-    # End of simulation

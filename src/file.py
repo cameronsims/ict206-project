@@ -1,4 +1,4 @@
-# file.py - Reads Road File(s) and Prints Results
+# file.py - Reads/Prints File(s) 
 #
 # Author: Cameron Sims
 # Date: 06/08/2024
@@ -10,8 +10,11 @@
 import road     # Used to save data into
 import death
 import weather
+import display
+import uinput
 
 # External Imports
+import os
 import csv      # Used to read a csv file
 
 ##########################################
@@ -72,7 +75,8 @@ def read_road_manifest(filename, roads, connections):
         
         # Add this instance to the set
         roads.update({r.id: r})
-        
+   
+# Read the weather file   
 def read_weather_file(filename):
     # Open the manifest file
     file = open(filename, "r")
@@ -80,8 +84,7 @@ def read_weather_file(filename):
     # Read the data
     data = csv.DictReader(file)
     
-    # Loop through all values...
-    total = 0.00
+    total = 0.0
     
     # For all the lines in the file...
     for line in data:
@@ -103,6 +106,70 @@ def read_weather_file(filename):
                 weather.Weather.speed_modifiers[i] = float(SPEED_MOD)
                 break
             i += 1
+
+# Read the weather file   
+def read_time_file(filename):
+    # Open the manifest file
+    file = open(filename, "r")
+    
+    # Read the data
+    data = csv.DictReader(file)
+    # For all the lines in the file...
+    for line in data:
+        # Set which is used to find valeus with our ID
+        NAME = line["TYPE"]
+        CRASH_MOD = line["CRASH"]
+        
+        for i in range(weather.TIME_N):
+            if weather.TIME_ARR[i] == NAME:
+                # If it is, set it and continue with loop.
+                weather.Time.crash_modifiers[i] = float(CRASH_MOD)
+                break
+            i += 1
+
+# This reads the manifests
+def read_manifest_files(directory_file, time_file, roads, cons):
+    # Get the directory list 
+    road_dir = directory_file + "roads/"
+    directories = os.listdir(road_dir)
+    
+    # Get the road/con network we want to use.
+    display.print_dir_files("Please select a road network", directories)
+    
+    # Get the value from user 
+    question = "Input file index (0-" + str(len(directories) - 1) + "):"
+    file_n = -1
+    while file_n < 0 or file_n > len(directories) - 1: 
+        file_n = uinput.get_u0int(question, display.print_error)
+    
+    read_connection_manifest(road_dir + directories[file_n] + "/connections.csv", cons)
+    read_road_manifest      (road_dir + directories[file_n] + "/roads.csv", roads, cons)
+    
+    
+    # Get the weather we want 
+    weather_dir = directory_file + "forecasts/"
+    directories = os.listdir(weather_dir)
+    
+    display.print_dir_files("Please select a weather type", directories)
+    
+    # Get the value from user 
+    question = "Input file index (0-" + str(len(directories) - 1) + "):"
+    file_n = -1
+    while file_n < 0 or file_n > len(directories) - 1:
+        file_n = uinput.get_u0int(question, display.print_error)
+
+    read_weather_file       (weather_dir + directories[file_n] + "/weather.csv")
+    read_time_file          (time_file)
+
+# Returns the data from a file 
+def read_network_file(filename):
+    # Read everything
+    f = open(filename, "r")
+    info = ""
+    for line in f:
+        info += line
+    return info
+
 
 # Save a row
 def save_data(stream, data, columns):

@@ -15,34 +15,12 @@ import file        # Used for CSV
 
 #############################################
 
-# We've loaded all our imports...
-
-# These are the CSV files for the data we're reading (relative)
-DATA_DIRECTORY = "./data/"
-ROAD_MANIFEST = DATA_DIRECTORY + "roads.csv"             # Location of the road csv file
-CONNECT_MANIFEST = DATA_DIRECTORY + "connections.csv"    # Location of the connections csv file
-SIMDATA_MANIFEST = DATA_DIRECTORY + "sim_data.json"      # Location of the data json file
-WEATHER_CSV = DATA_DIRECTORY + "weather.csv"             # Location of weather information
-
-# This where our file is going to be output (relative)
-OUTPUT_DIRECTORY = "./out/"
-GRAPH_FILENAME = OUTPUT_DIRECTORY + "graph.html"
-
-ROAD_CSV_FILENAME = OUTPUT_DIRECTORY + "road_report.csv"
-CONS_CSV_FILENAME = OUTPUT_DIRECTORY + "intersection_report.csv"
-WEATHER_CSV_FILENAME = OUTPUT_DIRECTORY + "weather_report.csv"
-
 # Import data from an external file
-simulation.data_create(SIMDATA_MANIFEST)
-
-
+simulation.data_create("./data/sim_data.json")
 
 # Print Signature
 display.print_signature()
 
-# Sets for quick access to road or connection data
-# There cannot be a duplicate ID, which makes sense in-terms of our program
-# Since it is a map, the O(n) is either log(n) or 1 (depending on type)
 cons = {}    # Connection Map
 roads = {}   # Road Map
 
@@ -50,9 +28,7 @@ roads = {}   # Road Map
 display.print_connection_begin()
 
 # Read the data pertaining to how the structure of the roads work
-file.read_connection_manifest(CONNECT_MANIFEST, cons)
-file.read_road_manifest      (ROAD_MANIFEST,    roads, cons)
-file.read_weather_file   (WEATHER_CSV)
+file.read_manifest_files("./data/", "./data/time.csv", roads, cons)
 
 # Tell user we succeeded
 display.print_connection_end()
@@ -64,23 +40,13 @@ simulation_data = simulation.begin(roads, cons)
 analysis.perform_analysis(roads, cons, simulation_data)
 
 # Save results
-file.save_sim_data(roads, ROAD_CSV_FILENAME, cons, CONS_CSV_FILENAME, WEATHER_CSV_FILENAME, simulation_data)
-
-
-
-
-
-#############################################
-#                                           # 
-#           Crazy Graph non-sense           #
-#                                           #
-#############################################
+file.save_sim_data(roads, "./out/road_report.csv", cons, "./out/intersection_report.csv", "./out/weather_report.csv", simulation_data)
 
 # Create the graph
 display.print_pyvis_begin()
 
 # Create the graph
-graphing.create_graph(GRAPH_FILENAME, roads, cons, simulation_data)
+graphing.create_graph("./out/graph.html", "./data/network.js", roads, cons, simulation_data)
 
 # Tell user that we have completed the program.
 display.print_pyvis_end()

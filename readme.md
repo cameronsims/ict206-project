@@ -1,4 +1,4 @@
-# ICT206 - Project
+# ICT206 Intelligent Systems - Project
 ### Created by Cameron Sims 
 
 ## How to install properly
