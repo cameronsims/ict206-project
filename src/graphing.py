@@ -71,13 +71,8 @@ def make_node_title(con, node_data):
 # Used to set roads and connections to a graph
 def create_graph(filename, graph_file, roads, cons, simulation_data):
 
-    net = pyvis.network.Network(notebook = True)
+    net = pyvis.network.Network(directed=False, notebook = True)
     
-    # Physics Nodes
-    #net.toggle_physics(True)
-    #net.show_buttons(filter_=['physics'])
-    
-    #net.set_options("{physics:{nodeDistance:200}}")
     def metric(n_id):
         return cons[n_id].deaths
     
@@ -209,10 +204,14 @@ def create_graph(filename, graph_file, roads, cons, simulation_data):
                      label = r.name,
                      value = road_size,
                      color = road_colour,
-                     length = r.length,
                      title = TITLE)
     
     opts =  file.read_network_file(graph_file) 
+    
+    # Physics Nodes
+    #net.toggle_physics(True)
+    #net.show_buttons(filter_=['physics'])
+    #net.set_options("{physics:{nodeDistance:200}}")
     net.set_options(opts)
     
     net.show(filename)

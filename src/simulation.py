@@ -108,6 +108,7 @@ def driver_regenerate(roads, cons, driver, on_target):
     
     # Set the road...
     driver.on_road = road.get_road_between(roads, this_node, next_node)
+    
     driver.on_road.drivers += 1
 driver_regenerate.node_crash_average = 0.0
 driver_regenerate.node_crash_min = 0.0

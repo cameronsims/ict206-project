@@ -15,15 +15,6 @@ import road
 
 # We've loaded all our imports...
 
-# These are the CSV files for the data we're reading (relative)
-DATA_DIRECTORY = "./data"
-ROAD_MANIFEST = DATA_DIRECTORY + "/roads.csv"             # Location of the road csv file
-CONNECT_MANIFEST = DATA_DIRECTORY + "/connections.csv"    # Location of the connections csv file
-
-# This where our file is going to be output (relative)
-OUTPUT_DIRECTORY = "./out"
-GRAPH_FILENAME = OUTPUT_DIRECTORY + "/graph.html"
-
 # If all of our imports and variables worked...
 # Then we will print out some things into the console
 
@@ -38,8 +29,8 @@ roads = {}   # Road Map
 # Read manifest(s)
 display.print_connection_begin()
 
-file.read_connection_manifest(CONNECT_MANIFEST, cons)
-file.read_road_manifest      (ROAD_MANIFEST,    roads, cons)
+file.read_connection_manifest("./data/connections.csv", cons)
+file.read_road_manifest      ("./data/road.csv", roads, cons)
 
 # Show that we have ended reading
 display.print_connection_end()
@@ -75,6 +66,6 @@ for road_id in roads:
     })
 
 # Create graph
-graphing.create_graph(GRAPH_FILENAME, roads, cons, simulation_data)
+graphing.create_graph("./out/graph.html", roads, cons, simulation_data)
 
 display.print_pyvis_end()

@@ -33,7 +33,10 @@ def death_probability(cons, node, r):
     if denom == 0:
         denom = 1
        
-    abn = a*b*pow(n, b/a)
+    if a != 0:
+        abn = a*b*pow(n, b/a)
+    else:
+        abn = b*pow(n, b)
     
     if not abn > 0:
         abn = 1
