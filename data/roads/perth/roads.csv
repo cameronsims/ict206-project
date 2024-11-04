@@ -1,0 +1,53 @@
+id,name,length,speed,from,to
+1,Wellington Street (Elder Street),0.225,50,1,2
+2,Wellington Street (Milligan Street),0.05,50,2,3
+3,Wellington Street (Milligan Lane Branch),0.125,50,3,4
+4,Wellington Street (Shafto Lane),0.11,50,4,5
+5,Wellington Street (Prince Lane),0.11,50,5,6
+6,Wellington Street (King Street),0.03,50,6,7
+7,Wellington Street (Queen Street),0.1,50,7,8
+8,Wellington Street (William Street),0.135,50,8,9
+9,Elder Street (Murray Street),0.15,50,1,10
+10,Murray Street (Unnamed to Hay),0.01,40,10,11
+11,Murray Street (Milligan Street),0.0125,40,11,12
+12,Murray Street (Unnamed to Hay),0.09,40,12,13
+13,Murray Street (Shafto Lane),0.09,40,13,14
+14,Murray Street (Prince Lane),0.1,40,14,15
+15,Murray Street (King Street),0.03,40,15,16
+16,Murray Street (Queen St),0.1,40,16,17
+17,Murray Street (Williams Street),0.15,40,17,18
+18,Elder Street,0.045,50,2,19
+19,Milligan Street,0.1,50,19,10
+20,Milligan Street,0.125,50,3,19
+21,Shafto Lane,0.15,50,5,14
+22,Prince Lane,0.14,50,6,15
+23,King Street (Murray Street),0.05,50,16,20
+24,King Street (Queen Street),0.1,50,20,21
+25,King Street (Wellington Street),0.09,50,20,7
+26,Queen Street (Murray Street),0.05,50,17,21
+27,Queen Street (Wellington Street),0.09,50,21,17
+28,William Street,0.14,50,9,18
+29,Elder Street,0.13,50,10,22
+30,Hay Street,0.1,50,22,23
+31,Hay Street (Unknown Branch),0.13,20,23,10
+32,Hay Street (Milligan Street),0.125,50,23,24
+33,Milligan Street (Murray-Milligan),0.13,50,24,12
+34,Milligan Street ,0.05,50,24,25
+35,Unknown Branch (Murray-Milligan),0.165,20,25,14
+36,Hay Street (King Street),0.145,50,25,26
+37,King Street (Upper),0.035,30,16,27
+38,King Street (Lower),0.044,30,26,28
+39,Munster Lane,0.11,30,28,27
+40,King Street (Lower) (Wolf Lane),0.02,30,28,29
+41,King Street (Upper) (Wolf Lane),0.035,30,27,29
+42,Wolf Lane (King Street Branch),0.83,30,29,30
+43,Wolf Lane (Murray Street),0.065,50,30,17
+44,Wolf Lane [Far] (Murray Street),0.135,50,30,18
+45,Hay Street (Williams),0.225,50,30,31
+46,William Street ,0.13,50,18,31
+47,Milligan Street (St. Georges Terrace),0.129,50,24,32
+48,King Street (St. Georges Terrace),0.129,50,26,33
+49,William Street (St. Georges Terrace),0.128,50,31,34
+50,St. Georges Terrace (Milligan Street),0.313,60,32,33
+51,St. Georges Terrace (King-William),0.23,60,33,34
+52,St. Georges Terrace,0.34,60,32,19

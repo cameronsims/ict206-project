@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 600px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#152020", "id": 1, "label": "1", "shape": "dot", "size": 1.5093632958801497, "title": "ID: 1\nCrash Percentage: 0.025176470588235293\nDeaths: 3\nTargeted: 43751\nCrossed: 0\n"}, {"color": "#072020", "id": 2, "label": "2", "shape": "dot", "size": 1.2546816479400749, "title": "ID: 2\nCrash Percentage: 0.015058823529411763\nDeaths: 1\nTargeted: 43658\nCrossed: 98989\n"}, {"color": "#2b2020", "id": 3, "label": "3", "shape": "dot", "size": 1.8913857677902621, "title": "ID: 3\nCrash Percentage: 0.03835294117647058\nDeaths: 6\nTargeted: 43630\nCrossed: 73626\n"}, {"color": "#832020", "id": 4, "label": "4", "shape": "dot", "size": 3.4194756554307117, "title": "ID: 4\nCrash Percentage: 0.01955882352941175\nDeaths: 18\nTargeted: 43768\nCrossed: 82680\n"}, {"color": "#2b2020", "id": 5, "label": "5", "shape": "dot", "size": 1.8913857677902621, "title": "ID: 5\nCrash Percentage: 0.022852941176470583\nDeaths: 6\nTargeted: 43504\nCrossed: 125042\n"}, {"color": "#1d2020", "id": 6, "label": "6", "shape": "dot", "size": 1.6367041198501873, "title": "ID: 6\nCrash Percentage: 0.015735294117647056\nDeaths: 4\nTargeted: 43560\nCrossed: 186041\n"}, {"color": "#482020", "id": 7, "label": "7", "shape": "dot", "size": 2.4007490636704123, "title": "ID: 7\nCrash Percentage: 0.02958823529411764\nDeaths: 10\nTargeted: 43923\nCrossed: 258649\n"}, {"color": "#ff2020", "id": 8, "label": "8", "shape": "dot", "size": 5.584269662921349, "title": "ID: 8\nCrash Percentage: 0.021058823529411737\nDeaths: 35\nTargeted: 43906\nCrossed: 95063\n"}, {"color": "#bd2020", "id": 9, "label": "9", "shape": "dot", "size": 4.438202247191011, "title": "ID: 9\nCrash Percentage: 0.02352941176470586\nDeaths: 26\nTargeted: 44065\nCrossed: 33458\n"}, {"color": "#002020", "id": 10, "label": "10", "shape": "dot", "size": 1.1273408239700375, "title": "ID: 10\nCrash Percentage: 0.001\nDeaths: 0\nTargeted: 44405\nCrossed: 327372\n"}, {"color": "#992020", "id": 11, "label": "11", "shape": "dot", "size": 3.801498127340824, "title": "ID: 11\nCrash Percentage: 0.017235294117647043\nDeaths: 21\nTargeted: 44038\nCrossed: 335766\n"}, {"color": "#072020", "id": 12, "label": "12", "shape": "dot", "size": 1.2546816479400749, "title": "ID: 12\nCrash Percentage: 0.0045588235294117645\nDeaths: 1\nTargeted: 43816\nCrossed: 389061\n"}, {"color": "#f72020", "id": 13, "label": "13", "shape": "dot", "size": 5.456928838951311, "title": "ID: 13\nCrash Percentage: 0.030499999999999975\nDeaths: 34\nTargeted: 44396\nCrossed: 312354\n"}, {"color": "#152020", "id": 14, "label": "14", "shape": "dot", "size": 1.5093632958801497, "title": "ID: 14\nCrash Percentage: 0.0036764705882352945\nDeaths: 3\nTargeted: 43901\nCrossed: 387992\n"}, {"color": "#152020", "id": 15, "label": "15", "shape": "dot", "size": 1.5093632958801497, "title": "ID: 15\nCrash Percentage: 0.024176470588235292\nDeaths: 3\nTargeted: 44514\nCrossed: 368784\n"}, {"color": "#0e2020", "id": 16, "label": "16", "shape": "dot", "size": 1.3820224719101124, "title": "ID: 16\nCrash Percentage: 0.022617647058823527\nDeaths: 2\nTargeted: 44104\nCrossed: 571068\n"}, {"color": "#002020", "id": 17, "label": "17", "shape": "dot", "size": 1.1273408239700375, "title": "ID: 17\nCrash Percentage: 0.0345\nDeaths: 0\nTargeted: 44124\nCrossed: 227028\n"}, {"color": "#412020", "id": 18, "label": "18", "shape": "dot", "size": 2.2734082397003745, "title": "ID: 18\nCrash Percentage: 0.03352941176470588\nDeaths: 9\nTargeted: 43851\nCrossed: 94814\n"}, {"color": "#152020", "id": 19, "label": "19", "shape": "dot", "size": 1.5093632958801497, "title": "ID: 19\nCrash Percentage: 0.049676470588235294\nDeaths: 3\nTargeted: 44005\nCrossed: 138606\n"}, {"color": "#242020", "id": 20, "label": "20", "shape": "dot", "size": 1.7640449438202248, "title": "ID: 20\nCrash Percentage: 0.02229411764705882\nDeaths: 5\nTargeted: 44120\nCrossed: 210358\n"}, {"color": "#332020", "id": 21, "label": "21", "shape": "dot", "size": 2.0187265917602994, "title": "ID: 21\nCrash Percentage: 0.02141176470588235\nDeaths: 7\nTargeted: 44171\nCrossed: 10280\n"}, {"color": "#0e2020", "id": 22, "label": "22", "shape": "dot", "size": 1.3820224719101124, "title": "ID: 22\nCrash Percentage: 0.012617647058823529\nDeaths: 2\nTargeted: 43896\nCrossed: 0\n"}, {"color": "#482020", "id": 23, "label": "23", "shape": "dot", "size": 2.4007490636704123, "title": "ID: 23\nCrash Percentage: 0.03408823529411764\nDeaths: 10\nTargeted: 43880\nCrossed: 22103\n"}, {"color": "#002020", "id": 24, "label": "24", "shape": "dot", "size": 1.1273408239700375, "title": "ID: 24\nCrash Percentage: 0.0065\nDeaths: 0\nTargeted: 43985\nCrossed: 191414\n"}, {"color": "#662020", "id": 25, "label": "25", "shape": "dot", "size": 2.9101123595505616, "title": "ID: 25\nCrash Percentage: 0.0433235294117647\nDeaths: 14\nTargeted: 43834\nCrossed: 192108\n"}, {"color": "#2b2020", "id": 26, "label": "26", "shape": "dot", "size": 1.8913857677902621, "title": "ID: 26\nCrash Percentage: 0.029352941176470585\nDeaths: 6\nTargeted: 44227\nCrossed: 249433\n"}, {"color": "#1d2020", "id": 27, "label": "27", "shape": "dot", "size": 1.6367041198501873, "title": "ID: 27\nCrash Percentage: 0.018235294117647054\nDeaths: 4\nTargeted: 44106\nCrossed: 300743\n"}, {"color": "#482020", "id": 28, "label": "28", "shape": "dot", "size": 2.4007490636704123, "title": "ID: 28\nCrash Percentage: 0.04808823529411764\nDeaths: 10\nTargeted: 44172\nCrossed: 216889\n"}, {"color": "#242020", "id": 29, "label": "29", "shape": "dot", "size": 1.7640449438202248, "title": "ID: 29\nCrash Percentage: 0.02379411764705882\nDeaths: 5\nTargeted: 44013\nCrossed: 256225\n"}, {"color": "#0e2020", "id": 30, "label": "30", "shape": "dot", "size": 1.3820224719101124, "title": "ID: 30\nCrash Percentage: 0.03161764705882353\nDeaths: 2\nTargeted: 43859\nCrossed: 0\n"}, {"color": "#242020", "id": 31, "label": "31", "shape": "dot", "size": 1.7640449438202248, "title": "ID: 31\nCrash Percentage: 0.01779411764705882\nDeaths: 5\nTargeted: 44158\nCrossed: 29142\n"}, {"color": "#002020", "id": 32, "label": "32", "shape": "dot", "size": 1.1273408239700375, "title": "ID: 32\nCrash Percentage: 0.0235\nDeaths: 0\nTargeted: 43979\nCrossed: 0\n"}, {"color": "#572020", "id": 33, "label": "33", "shape": "dot", "size": 2.655430711610487, "title": "ID: 33\nCrash Percentage: 0.038705882352941166\nDeaths: 12\nTargeted: 44122\nCrossed: 68383\n"}, {"color": "#002020", "id": 34, "label": "34", "shape": "dot", "size": 1.1273408239700375, "title": "ID: 34\nCrash Percentage: 0.0\nDeaths: 0\nTargeted: 44076\nCrossed: 17644\n"}]);
+                  edges = new vis.DataSet([{"color": "#20fe00", "from": 1, "label": "Wellington Street (Elder Street)", "title": "ID: 1\nName: Wellington Street (Elder Street)\nLength: 0.225\nSpeed: 50.0\nPass: 101.06494675266238\nConjestion Score: 0.0034684609879611166\n", "to": 2, "value": 1.961275815715564}, {"color": "#20fc0d", "from": 2, "label": "Wellington Street (Milligan Street)", "title": "ID: 2\nName: Wellington Street (Milligan Street)\nLength: 0.05\nSpeed: 50.0\nPass: 100.1480224861125\nConjestion Score: 0.27896711272049685\n", "to": 3, "value": 2.499737026916251}, {"color": "#20fc05", "from": 3, "label": "Wellington Street (Milligan Lane Branch)", "title": "ID: 3\nName: Wellington Street (Milligan Lane Branch)\nLength: 0.125\nSpeed: 50.0\nPass: 100.02654280026545\nConjestion Score: 0.10475339011414356\n", "to": 4, "value": 2.1592368774873196}, {"color": "#20fc07", "from": 4, "label": "Wellington Street (Shafto Lane)", "title": "ID: 4\nName: Wellington Street (Shafto Lane)\nLength: 0.11\nSpeed: 50.0\nPass: 100.06435926773456\nConjestion Score: 0.1473351855962314\n", "to": 5, "value": 2.2424628570926393}, {"color": "#20fc08", "from": 5, "label": "Wellington Street (Prince Lane)", "title": "ID: 5\nName: Wellington Street (Prince Lane)\nLength: 0.11\nSpeed: 50.0\nPass: 100.06829192866715\nConjestion Score: 0.16354174013562392\n", "to": 6, "value": 2.274138514783855}, {"color": "#20fb29", "from": 6, "label": "Wellington Street (King Street)", "title": "ID: 6\nName: Wellington Street (King Street)\nLength: 0.03\nSpeed: 50.0\nPass: 99.80639757607935\nConjestion Score: 0.8418893742216484\n", "to": 7, "value": 3.599966740686365}, {"color": "#20fb09", "from": 7, "label": "Wellington Street (Queen Street)", "title": "ID: 7\nName: Wellington Street (Queen Street)\nLength: 0.1\nSpeed: 50.0\nPass: 99.9299553682553\nConjestion Score: 0.19993762683919492\n", "to": 8, "value": 2.345274155970782}, {"color": "#20fc04", "from": 8, "label": "Wellington Street (William Street)", "title": "ID: 8\nName: Wellington Street (William Street)\nLength: 0.135\nSpeed: 50.0\nPass: 100.05136790837487\nConjestion Score: 0.090235923071083\n", "to": 9, "value": 2.130862535767631}, {"color": "#20fb03", "from": 1, "label": "Elder Street (Murray Street)", "title": "ID: 9\nName: Elder Street (Murray Street)\nLength: 0.15\nSpeed: 50.0\nPass: 99.83540215091024\nConjestion Score: 0.062288679407574196\n", "to": 10, "value": 2.0762397396917236}, {"color": "#20fbff", "from": 10, "label": "Murray Street (Unnamed to Hay)", "title": "ID: 10\nName: Murray Street (Unnamed to Hay)\nLength: 0.01\nSpeed: 40.0\nPass: 99.97639636337382\nConjestion Score: 5.212377035707868\n", "to": 11, "value": 12.142070540258626}, {"color": "#20fce2", "from": 11, "label": "Murray Street (Milligan Street)", "title": "ID: 11\nName: Murray Street (Milligan Street)\nLength: 0.0125\nSpeed: 40.0\nPass: 100.03479767281176\nConjestion Score: 4.628113739894381\n", "to": 12, "value": 11.000129844921709}, {"color": "#20fb1b", "from": 12, "label": "Murray Street (Unnamed to Hay)", "title": "ID: 12\nName: Murray Street (Unnamed to Hay)\nLength: 0.09\nSpeed: 40.0\nPass: 99.91432433449401\nConjestion Score: 0.5552873876786796\n", "to": 13, "value": 3.039804098016616}, {"color": "#20fc1c", "from": 13, "label": "Murray Street (Shafto Lane)", "title": "ID: 13\nName: Murray Street (Shafto Lane)\nLength: 0.09\nSpeed: 40.0\nPass: 100.11114976139488\nConjestion Score: 0.5925882713741578\n", "to": 14, "value": 3.112708552855918}, {"color": "#20fc1c", "from": 14, "label": "Murray Street (Prince Lane)", "title": "ID: 14\nName: Murray Street (Prince Lane)\nLength: 0.1\nSpeed: 40.0\nPass: 100.02089479470864\nConjestion Score: 0.5821437665588223\n", "to": 15, "value": 3.0922948024513714}, {"color": "#20fb50", "from": 15, "label": "Murray Street (King Street)", "title": "ID: 15\nName: Murray Street (King Street)\nLength: 0.03\nSpeed: 40.0\nPass: 99.98112556512713\nConjestion Score: 1.6360671411364507\n", "to": 16, "value": 5.152184581290406}, {"color": "#20fb13", "from": 16, "label": "Murray Street (Queen St)", "title": "ID: 16\nName: Murray Street (Queen St)\nLength: 0.1\nSpeed: 40.0\nPass: 99.96062067595152\nConjestion Score: 0.4005765514727611\n", "to": 17, "value": 2.7374222760896383}, {"color": "#20fc05", "from": 17, "label": "Murray Street (Williams Street)", "title": "ID: 17\nName: Murray Street (Williams Street)\nLength: 0.15\nSpeed: 40.0\nPass: 100.1268512352139\nConjestion Score: 0.1218941660428499\n", "to": 18, "value": 2.192738467819788}, {"color": "#20fb13", "from": 2, "label": "Elder Street", "title": "ID: 18\nName: Elder Street\nLength: 0.045\nSpeed: 50.0\nPass: 99.84653762354353\nConjestion Score: 0.4069238788354323\n", "to": 19, "value": 2.7498281066013224}, {"color": "#20fc0b", "from": 19, "label": "Milligan Street", "title": "ID: 19\nName: Milligan Street\nLength: 0.1\nSpeed: 50.0\nPass: 100.1158320947158\nConjestion Score: 0.22624063742577005\n", "to": 10, "value": 2.396683303890758}, {"color": "#20f400", "from": 3, "label": "Milligan Street", "title": "ID: 20\nName: Milligan Street\nLength: 0.125\nSpeed: 50.0\nPass: 96.82539682539682\nConjestion Score: 0.0010738948223633841\n", "to": 19, "value": 1.9565956439988628}, {"color": "#20fa01", "from": 5, "label": "Shafto Lane", "title": "ID: 21\nName: Shafto Lane\nLength: 0.15\nSpeed: 50.0\nPass: 99.56455527530576\nConjestion Score: 0.0323087295456939\n", "to": 14, "value": 2.0176440260181914}, {"color": "#20fd03", "from": 6, "label": "Prince Lane", "title": "ID: 22\nName: Prince Lane\nLength: 0.14\nSpeed: 50.0\nPass: 100.40946687412988\nConjestion Score: 0.07100423003126322\n", "to": 15, "value": 2.0932742547995096}, {"color": "#20fb1c", "from": 16, "label": "King Street (Murray Street)", "title": "ID: 23\nName: King Street (Murray Street)\nLength: 0.05\nSpeed: 50.0\nPass: 99.97012575442564\nConjestion Score: 0.5736187419255115\n", "to": 20, "value": 3.075632669766872}, {"color": "#20fd02", "from": 20, "label": "King Street (Queen Street)", "title": "ID: 24\nName: King Street (Queen Street)\nLength: 0.1\nSpeed: 50.0\nPass: 100.66731427123368\nConjestion Score: 0.05521199976495095\n", "to": 21, "value": 2.062408392541083}, {"color": "#20fb0d", "from": 20, "label": "King Street (Wellington Street)", "title": "ID: 25\nName: King Street (Wellington Street)\nLength: 0.09\nSpeed: 50.0\nPass: 99.98363568356088\nConjestion Score: 0.275197773809196\n", "to": 7, "value": 2.492369866377203}, {"color": "#20fa06", "from": 17, "label": "Queen Street (Murray Street)", "title": "ID: 26\nName: Queen Street (Murray Street)\nLength: 0.05\nSpeed: 50.0\nPass: 99.42132639791937\nConjestion Score: 0.14168184407902076\n", "to": 21, "value": 2.2314134196396975}, {"color": "#20fc02", "from": 9, "label": "William Street", "title": "ID: 28\nName: William Street\nLength: 0.14\nSpeed: 50.0\nPass: 100.2907501353492\nConjestion Score: 0.04137797626904891\n", "to": 18, "value": 2.035369838992683}, {"color": "#20fb02", "from": 10, "label": "Elder Street", "title": "ID: 29\nName: Elder Street\nLength: 0.13\nSpeed: 50.0\nPass: 99.90304687127485\nConjestion Score: 0.0560004753388804\n", "to": 22, "value": 2.0639494654642}, {"color": "#20fd01", "from": 22, "label": "Hay Street", "title": "ID: 30\nName: Hay Street\nLength: 0.1\nSpeed: 50.0\nPass: 100.59521415644481\nConjestion Score: 0.028970374451871575\n", "to": 23, "value": 2.0111192219368172}, {"color": "#20fa04", "from": 23, "label": "Hay Street (Unknown Branch)", "title": "ID: 31\nName: Hay Street (Unknown Branch)\nLength: 0.13\nSpeed: 20.0\nPass: 99.45726524479132\nConjestion Score: 0.09877549795776572\n", "to": 10, "value": 2.1475531068746228}, {"color": "#20fc02", "from": 23, "label": "Hay Street (Milligan Street)", "title": "ID: 32\nName: Hay Street (Milligan Street)\nLength: 0.125\nSpeed: 50.0\nPass: 100.17763694848529\nConjestion Score: 0.05800143924961442\n", "to": 24, "value": 2.06786034286475}, {"color": "#20fc05", "from": 24, "label": "Milligan Street (Murray-Milligan)", "title": "ID: 33\nName: Milligan Street (Murray-Milligan)\nLength: 0.13\nSpeed: 50.0\nPass: 100.08693132425384\nConjestion Score: 0.10770487246591019\n", "to": 12, "value": 2.1650055400632535}, {"color": "#20fb18", "from": 24, "label": "Milligan Street ", "title": "ID: 34\nName: Milligan Street \nLength: 0.05\nSpeed: 50.0\nPass: 99.88933105232336\nConjestion Score: 0.5017910226592394\n", "to": 25, "value": 2.935245628049338}, {"color": "#20fb04", "from": 25, "label": "Unknown Branch (Murray-Milligan)", "title": "ID: 35\nName: Unknown Branch (Murray-Milligan)\nLength: 0.165\nSpeed: 20.0\nPass: 99.62708917012849\nConjestion Score: 0.09048449033698854\n", "to": 14, "value": 2.1313483596735656}, {"color": "#20fc07", "from": 25, "label": "Hay Street (King Street)", "title": "ID: 36\nName: Hay Street (King Street)\nLength: 0.145\nSpeed: 50.0\nPass: 100.09005240754864\nConjestion Score: 0.16246768846439233\n", "to": 26, "value": 2.2720392843152246}, {"color": "#20fb62", "from": 16, "label": "King Street (Upper)", "title": "ID: 37\nName: King Street (Upper)\nLength: 0.035\nSpeed: 30.0\nPass: 99.96455254403665\nConjestion Score: 2.0219636223069983\n", "to": 27, "value": 5.9064179880328345}, {"color": "#20fb34", "from": 26, "label": "King Street (Lower)", "title": "ID: 38\nName: King Street (Lower)\nLength: 0.044\nSpeed: 30.0\nPass: 99.93866410418924\nConjestion Score: 1.0722461241229824\n", "to": 28, "value": 4.050198252819306}, {"color": "#200000", "from": 28, "label": "Munster Lane", "title": "ID: 39\nName: Munster Lane\nLength: 0.11\nSpeed: 30.0\nPass: 0.0\nConjestion Score: 0.0\n", "to": 27, "value": 1.954496720090831}, {"color": "#20fc83", "from": 28, "label": "King Street (Lower) (Wolf Lane)", "title": "ID: 40\nName: King Street (Lower) (Wolf Lane)\nLength: 0.02\nSpeed: 30.0\nPass: 100.08215476083235\nConjestion Score: 2.6808087844756345\n", "to": 29, "value": 7.1941286965391456}, {"color": "#20fc57", "from": 27, "label": "King Street (Upper) (Wolf Lane)", "title": "ID: 41\nName: King Street (Upper) (Wolf Lane)\nLength: 0.035\nSpeed: 30.0\nPass: 100.02074740192981\nConjestion Score: 1.7814359347577484\n", "to": 29, "value": 5.436307411626794}, {"color": "#200000", "from": 29, "label": "Wolf Lane (King Street Branch)", "title": "ID: 42\nName: Wolf Lane (King Street Branch)\nLength: 0.83\nSpeed: 30.0\nPass: 0.0\nConjestion Score: 0.0\n", "to": 30, "value": 1.954496720090831}, {"color": "#20fb06", "from": 30, "label": "Wolf Lane (Murray Street)", "title": "ID: 43\nName: Wolf Lane (Murray Street)\nLength: 0.065\nSpeed: 50.0\nPass: 99.87154124810523\nConjestion Score: 0.13853293100727362\n", "to": 17, "value": 2.2252588793691164}, {"color": "#20ff00", "from": 30, "label": "Wolf Lane [Far] (Murray Street)", "title": "ID: 44\nName: Wolf Lane [Far] (Murray Street)\nLength: 0.135\nSpeed: 50.0\nPass: 101.18279569892472\nConjestion Score: 0.004036585769357143\n", "to": 18, "value": 1.9623862137374048}, {"color": "#20fb00", "from": 30, "label": "Hay Street (Williams)", "title": "ID: 45\nName: Hay Street (Williams)\nLength: 0.225\nSpeed: 50.0\nPass: 99.9808282208589\nConjestion Score: 0.002684479675306801\n", "to": 31, "value": 1.9597435268113683}, {"color": "#20fc04", "from": 18, "label": "William Street ", "title": "ID: 46\nName: William Street \nLength: 0.13\nSpeed: 50.0\nPass: 100.05897812635804\nConjestion Score: 0.08615587957706108\n", "to": 31, "value": 2.1228881041407375}, {"color": "#20fb03", "from": 24, "label": "Milligan Street (St. Georges Terrace)", "title": "ID: 47\nName: Milligan Street (St. Georges Terrace)\nLength: 0.129\nSpeed: 50.0\nPass: 99.68000906169028\nConjestion Score: 0.06320878513052937\n", "to": 32, "value": 2.0780380833093766}, {"color": "#20fc06", "from": 26, "label": "King Street (St. Georges Terrace)", "title": "ID: 48\nName: King Street (St. Georges Terrace)\nLength: 0.129\nSpeed: 50.0\nPass: 100.154109711779\nConjestion Score: 0.12545149516552814\n", "to": 33, "value": 2.1996912559223465}, {"color": "#20fb01", "from": 31, "label": "William Street (St. Georges Terrace)", "title": "ID: 49\nName: William Street (St. Georges Terrace)\nLength: 0.128\nSpeed: 50.0\nPass: 99.80090376269519\nConjestion Score: 0.04036823712361281\n", "to": 34, "value": 2.033396307144781}, {"color": "#20fa00", "from": 32, "label": "St. Georges Terrace (Milligan Street)", "title": "ID: 50\nName: St. Georges Terrace (Milligan Street)\nLength: 0.313\nSpeed: 60.0\nPass: 99.42401417811254\nConjestion Score: 0.002075902009229955\n", "to": 33, "value": 1.958554063759101}, {"color": "#20fb01", "from": 33, "label": "St. Georges Terrace (King-William)", "title": "ID: 51\nName: St. Georges Terrace (King-William)\nLength: 0.23\nSpeed: 60.0\nPass: 99.99110489865937\nConjestion Score: 0.03302081214679773\n", "to": 34, "value": 2.0190357891264825}, {"color": "#20fe00", "from": 32, "label": "St. Georges Terrace", "title": "ID: 52\nName: St. Georges Terrace\nLength: 0.34\nSpeed: 60.0\nPass: 101.05303102172469\nConjestion Score: 0.0030238435686123217\n", "to": 19, "value": 1.9604068124277514}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"configure": {"enabled": true, "filter": ["interaction", "manipulation", "physics"]}, "physics": {"forceAtlas2Based": {"springLength": 100, "avoidOverlap": 1}, "minVelocity": 0.75, "solver": "forceAtlas2Based"}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

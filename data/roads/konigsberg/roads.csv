@@ -1,0 +1,13 @@
+id,name,length,speed,from,to
+1,North-Kneiphof West,0.045,50,1,4
+2,North-Kneiphof East,0.046,50,2,5
+3,South-Kneiphof West,0.065,50,7,4
+4,South-Kneiphof East,0.064,50,8,5
+5,North-Lomse,0.08,60,3,6
+6,South-Lomse,0.1,60,9,6
+7,Kneiphof-Lomse,0.08,50,5,6
+8,Moskovskiy Prospekt (West),0.27,60,1,2
+9,Moskovskiy Prospekt (East),0.18,60,2,3
+10,Ulitsa Kanta,0.35,40,4,5
+11,Staropregol'skaya Naberezhnaya,0.38,50,7,8
+12,Ulitsa Bagrationa,0.967,50,8,9

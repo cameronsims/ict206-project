@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 600px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#002020", "id": 1, "label": "1", "shape": "dot", "size": 2.0, "title": "ID: 1\nCrash Percentage: 0.0\nDeaths: 0\nTargeted: 215758\nCrossed: 0\n"}, {"color": "#002020", "id": 2, "label": "2", "shape": "dot", "size": 2.0, "title": "ID: 2\nCrash Percentage: 0.0\nDeaths: 0\nTargeted: 215724\nCrossed: 431528\n"}, {"color": "#002020", "id": 3, "label": "3", "shape": "dot", "size": 2.0, "title": "ID: 3\nCrash Percentage: 0.0\nDeaths: 0\nTargeted: 215453\nCrossed: 0\n"}, {"color": "#002020", "id": 4, "label": "4", "shape": "dot", "size": 2.0, "title": "ID: 4\nCrash Percentage: 0.0\nDeaths: 0\nTargeted: 215860\nCrossed: 0\n"}, {"color": "#002020", "id": 5, "label": "5", "shape": "dot", "size": 2.0, "title": "ID: 5\nCrash Percentage: 0.0\nDeaths: 0\nTargeted: 216395\nCrossed: 432440\n"}, {"color": "#002020", "id": 6, "label": "6", "shape": "dot", "size": 2.0, "title": "ID: 6\nCrash Percentage: 0.0\nDeaths: 0\nTargeted: 216942\nCrossed: 0\n"}]);
+                  edges = new vis.DataSet([{"color": "#20ffc9", "from": 1, "label": "McInnes St (1)", "title": "ID: 1\nName: McInnes St (1)\nLength: 0.11973\nSpeed: 50.0\nPass: 100.10605037682654\nConjestion Score: 0.40078347139243226\n", "to": 2, "value": 4.339068881865047}, {"color": "#20feb9", "from": 2, "label": "McInnes St (2)", "title": "ID: 2\nName: McInnes St (2)\nLength: 0.12969\nSpeed: 50.0\nPass: 99.90620417289794\nConjestion Score: 0.36845848515718116\n", "to": 3, "value": 4.233962195739522}, {"color": "#20fe21", "from": 4, "label": "Price St", "title": "ID: 3\nName: Price St\nLength: 0.18073\nSpeed: 50.0\nPass: 99.99652653151014\nConjestion Score: 0.06637371805334001\n", "to": 1, "value": 3.2517149468710786}, {"color": "#20fec2", "from": 4, "label": "Wright St (1)", "title": "ID: 4\nName: Wright St (1)\nLength: 0.12435\nSpeed: 50.0\nPass: 99.96756669099165\nConjestion Score: 0.3855881540713812\n", "to": 5, "value": 4.289660370547577}, {"color": "#20feb4", "from": 5, "label": "Wright St (2)", "title": "ID: 5\nName: Wright St (2)\nLength: 0.13447\nSpeed: 50.0\nPass: 100.08090358653372\nConjestion Score: 0.3590442259397145\n", "to": 6, "value": 4.203351151345773}, {"color": "#20fe21", "from": 3, "label": "Day St", "title": "ID: 6\nName: Day St\nLength: 0.18116\nSpeed: 50.0\nPass: 99.99422065537767\nConjestion Score: 0.06632657763605829\n", "to": 6, "value": 3.2515616668972838}, {"color": "#20feff", "from": 2, "label": "McInnes-Wright", "title": "ID: 7\nName: McInnes-Wright\nLength: 0.16593\nSpeed: 50.0\nPass: 99.96627993275821\nConjestion Score: 0.5062370678212508\n", "to": 5, "value": 4.681957753649449}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"configure": {"enabled": true, "filter": ["interaction", "manipulation", "physics"]}, "physics": {"forceAtlas2Based": {"springLength": 100, "avoidOverlap": 1}, "minVelocity": 0.75, "solver": "forceAtlas2Based"}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

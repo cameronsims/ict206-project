@@ -1,0 +1,93 @@
+id,name,length,speed,from,to
+1,Te Auala O Tuvalu (Fongale-Funafuti 1),6.5,40,1,2
+2,Te Auala O Tuvalu (Fongafale Branch 1),0.069,40,2,3
+3,Te Auala O Tuvalu (Funafuti Branch 1),0.115,40,3,4
+4,Te Auala O Tuvalu (Fongafale Branch 2),0.716,40,4,5
+5,Te Auala O Tuvalu (Funafuti Branch 2),0.365,40,5,6
+6,Te Auala O Tuvalu (Fongafale Branch 3),0.024,40,6,7
+7,Te Auala O Tuvalu (Funafuti Branch 3),0.08482,40,7,8
+8,Te Auala O Tuvalu (Fongale-Funafuti 2),0.06804,40,8,9
+9,Te Auala O Tuvalu (Fongafale Branch 4),0.08775,40,9,10
+10,Te Auala O Tuvalu (Fongale-Funafuti 3),0.0636,40,10,11
+11,Te Auala O Tuvalu (Fongafale Branch 5),0.0607,40,11,12
+12,Te Auala O Tuvalu (Fongafale Branch 5),0.0523,40,12,13
+13,Te Auala O Tuvalu (Fongafale Branch 6),0.19307,40,13,14
+14,Te Auala O Tuvalu (Fongafale Branch 7),0.05398,40,14,15
+15,Te Auala O Tuvalu (Funafuti Branch 4),0.11137,40,15,16
+16,Te Auala O Tuvalu (Fongafale Branch 8),0.1463,40,16,17
+17,Te Auala O Tuvalu (Fongale-Funafuti 4),0.12173,40,17,18
+18,Te Auala O Fongafale 1,0.10917,40,2,19
+19,Te Auala O Fongafale (Tuvalu Branch 1),0.05786,40,19,3
+20,Te Auala O Fongafale 2,0.1404,40,19,20
+21,Te Auala O Fongafale (Tuvalu Branch 2),0.06648,40,20,5
+22,Te Auala O Fongafale 3,0.08186,40,20,21
+23,Fongafale (Court Branch),0.05313,10,20,21
+24,Te Auala O Fongafale (Tuvalu Branch 3),0.10032,40,21,7
+25,Te Auala O Fongafale 4,0.15462,40,21,22
+26,Te Auala O Fongafale (Tuvalu-Funafuti Branch 1),0.8567,40,22,9
+27,Te Auala O Fongafale 4,0.0618,40,22,23
+28,Te Auala O Fongafale (Tuvalu Branch 4),0.0702,40,23,12
+29,Te Auala O Fongafale 5,0.03603,40,23,24
+30,Church Branch 1,0.08658,30,23,25
+31,Church Branch 2,0.03714,30,25,24
+32,Te Auala O Fongafale 5,0.2472,40,24,26
+33,Te Auala O Fongafale 6,0.02146,40,26,27
+34,Te Auala O Fongafale (Tuvalu-Funafuti Branch 2),0.06941,40,26,9
+35,Church Branch 3,0.12207,30,25,27
+36,Te Auala O Fongafale 7,0.03952,40,27,28
+37,Te Auala O Fongafale (Tuvalu Branch 5),0.06524,40,28,13
+38,Te Auala O Fongafale 8,0.31825,40,28,29
+39,Te Auala O Fongafale (New Branch),0.03846,40,29,30
+40,Te Auala O Fongafale (Tuvalu Branch 5),0.12639,40,30,14
+41,Te Auala O Fongafale (Tuvalu Branch 6),0.06699,40,30,15
+42,Te Auala O Fongafale 9,0.26089,40,29,31
+43,Te Auala O Fongafale (Tuvalu Branch 7),0.07136,40,31,16
+44,Te Auala O Fongafale 10,0.12935,40,31,32
+45,Te Auala O Fongafale (Government-Tuvalu),0.04108,40,32,33
+46,Te Auala O Fongafale (Tuvalu-Funafuti Branch 4),0.02768,40,33,18
+47,Government Road 4,0.07696,30,33,36
+48,Government Road 1,0.03364,30,32,34
+49,Government Road 2,0.07696,30,34,35
+50,Government Road 3,0.6168,30,35,36
+51,Government Road (Valaku),0.07366,30,36,37
+52,Government Road 4,0.13156,30,36,38
+53,Government Road 5,0.15201,30,35,38
+54,Government Road (Valaku),0.07202,30,38,39
+55,Government Road (Valaku),0.23554,30,38,40
+56,Te Auala O Tuvalu (Valaku),0.06623,40,18,41
+57,Valaku 1,0.08886,40,41,37
+58,Valaku 2,0.17098,40,37,39
+59,Valaku 3,0.16928,40,39,40
+60,Valaku 4,0.39012,40,40,42
+61,Valaku 5,2.54072,40,42,45
+62,Valaku Airport,0.15688,40,41,43
+63,Valaku Airport Loop Start,0.07531,40,43,44
+64,Valaku Airport Loop End,0.16628,40,44,43
+65,Valaku Airport (Back),0.69303,40,44,42
+66,Te Auala O Funafuti 1,0.24236,40,2,46
+67,Te Auala O Funafuti (Tuvalu Branch 1),0.05009,40,46,4
+68,Te Auala O Funafuti 2,0.12586,40,46,47
+69,Te Auala O Funafuti (Tuvalu Branch 2),0.06634,40,47,6
+70,Te Auala O Funafuti 3,0.06722,40,47,48
+71,Te Auala O Funafuti 4,0.05185,40,48,49
+72,Te Auala O Funafuti (Tuvalu Branch (3),0.06062,40,49,8
+73,Te Auala O Funafuti (Unknown Branch 1),0.16417,40,48,50
+74,Unknown Branch 2,0.07255,40,50,51
+75,Unknown Branch Connection,0.05192,40,51,49
+76,Unknown Branch 3,0.07805,40,51,52
+77,Unknown Beach Branch,0.49831,40,52,53
+78,Valaku 6,0.07628,40,52,54
+79,Valaku (Unknown Branch),0.14195,40,54,55
+80,Unknown Branch 4,0.06405,40,55,51
+81,Te Auala O Funafuti (Funafuti-Fongafale Branch 2),0.07762,40,55,9
+82,Valaku 7,0.063,40,54,56
+83,Te Auala O Funafuti (Tuvalu-Funafuti Branch 3),0.20332,40,56,11
+84,Valaku 8,0.11955,40,56,57
+85,Te Auala O Funafuti (Tuvalu Branch 4),0.18414,40,57,16
+86,Valaku 9,0.17249,40,57,58
+87,Church Branch,0.08358,40,58,59
+88,Valaku 10,0.13804,40,58,60
+89,Mosque Branch,0.07118,40,60,61
+90,Valaku 11,0.08516,40,60,62
+91,Te Auala O Funafuti (Tuvalu Branch 5),0.1301,40,62,18
+92,Valaku 12,0.25163,40,62,41
